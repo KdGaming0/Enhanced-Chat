@@ -13,7 +13,7 @@
 
 # Enhanced Chat
 
-**A quality-of-life chat overhaul for Hypixel SkyBlock and general use.**
+**A quality-of-life chat upgrade for Hypixel SkyBlock and general use. Adds better formatting, search, filtering, and other small improvements.**
 </div>
 
 ## Features

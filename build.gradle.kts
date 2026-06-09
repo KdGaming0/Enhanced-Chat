@@ -1,6 +1,7 @@
 plugins {
     // This plugin applies the correct loom variant based on the Minecraft version
     id("dev.kikugie.loom-back-compat")
+    id("me.modmuss50.mod-publish-plugin")
 }
 
 // DO NOT set group = ...!
@@ -139,5 +140,48 @@ tasks {
         from(loomx.modJar.map { it.archiveFile }, loomx.modSourcesJar.map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
+    }
+}
+
+if (sc.current.version == compatibleVersions.firstOrNull()) {
+    val changelogFile = rootProject.file("CHANGELOG.md")
+    val publishChangelog = if (changelogFile.exists()) changelogFile.readText() else "No changelog provided."
+
+    publishMods {
+        file.set(loomx.modJar.flatMap { it.archiveFile })
+        additionalFiles.from(loomx.modSourcesJar.flatMap { it.archiveFile })
+
+        displayName.set("${property("mod.name")} v${property("mod.version")} for mc${sc.current.version}")
+        version.set("v${property("mod.version")}-mc${sc.current.version}")
+        changelog.set(publishChangelog)
+        type.set(STABLE)
+        modLoaders.add("fabric")
+
+        dryRun.set(providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null)
+
+        val modrinthId = providers.gradleProperty("publish.modrinth").orNull
+        if (!modrinthId.isNullOrEmpty()) {
+            modrinth {
+                projectId.set(modrinthId)
+                accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
+                minecraftVersions.addAll(compatibleVersions)
+                requires("fabric-api")
+            }
+        }
+
+        /*
+        val curseforgeId = providers.gradleProperty("publish.curseforge").orNull
+        if (!curseforgeId.isNullOrEmpty()) {
+            curseforge {
+                projectId.set(curseforgeId)
+                accessToken.set(providers.environmentVariable("CURSEFORGE_TOKEN"))
+                minecraftVersions.addAll(compatibleVersions)
+                client.set(true)
+                server.set(true)
+
+                requires("fabric-api")
+            }
+        }
+        */
     }
 }
