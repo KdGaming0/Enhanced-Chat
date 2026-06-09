@@ -7,7 +7,6 @@
 </div>
 <div align="center">
 
-[![Requires HM-API](https://img.shields.io/badge/requires-HM--API-5DADE2?logo=minecraft&style=flat-square)](https://modrinth.com/mod/hm-api)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/enhanced-chat?color=00AF5C&label=downloads&logo=modrinth&style=flat-square)](https://modrinth.com/mod/enhanced-chat)
 [![Join Fluxer](https://img.shields.io/badge/Join-Fluxer-5865F2?style=flat-square)](https://fluxer.gg/3jJy9cp6)
 
