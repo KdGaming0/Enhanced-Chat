@@ -4,6 +4,18 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
   ],
+  "client": [
+    "chat.ChatAnimationMixin",
+    "chat.ChatContextMenuMixin",
+    "chat.ChatHistoryMixin",
+    "chat.ChatRenderingMixin",
+    "chat.ChatScreenAnimationMixin",
+    "chat.CompactChatMixin",
+    "chat.search.ChatSearchFilterMixin",
+    "chat.search.ChatSearchScreenMixin",
+    "chat.tab.ChatTabFilterMixin",
+    "chat.tab.ChatTabScreenMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

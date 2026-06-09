@@ -3,13 +3,13 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "To be added later",
+  "description": "Quality-of-life chat enhancements for Hypixel SkyBlock and general use.",
   "authors": [
     "Kd_Gaming1"
   ],
   "contact": {
-    "homepage": "https://modrinth.com/mod/enhanced-storage",
-    "sources": "https://github.com/kdgaming0/Enhanced-Storage"
+    "homepage": "https://modrinth.com/mod/enhanced-chat",
+    "sources": "https://github.com/kdgaming0/Enhanced-Chat"
   },
   "license": "GPL-3.0-only",
   "icon": "assets/enhanced_chat/icon.png",
