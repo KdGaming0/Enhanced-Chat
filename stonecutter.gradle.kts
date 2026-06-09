@@ -36,6 +36,12 @@ tasks.register("publishAllToCurseforgeRelease") {
 }
 */
 
+tasks.register("publishToAllPlatforms") {
+    group       = "publishing"
+    description = "Publishes to both Modrinth and Curseforge sequentially."
+    dependsOn("publishAllToModrinthRelease")//, "publishAllToCurseforgeRelease")
+}
+
 gradle.projectsEvaluated {
     releaseVersions.zipWithNext().forEach { (prev, next) ->
         project(":$next").tasks.named("publishModrinth") {
