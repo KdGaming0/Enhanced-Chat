@@ -18,39 +18,19 @@ val releaseVersions = listOf(
 )
 
 stonecutter tasks {
-    order("publishModrinth")
-    // order("publishCurseforge")
+    order("publishMods")
 }
-
-tasks.register("publishAllToModrinthRelease") {
-    group       = "publishing"
-    description = "Publish all release groups to Modrinth sequentially."
-    dependsOn(releaseVersions.map { ":$it:publishModrinth" })
-}
-
-/*
-tasks.register("publishAllToCurseforgeRelease") {
-    group       = "publishing"
-    description = "Publish all release groups to CurseForge sequentially."
-    dependsOn(releaseVersions.map { ":$it:publishCurseforge" })
-}
-*/
 
 tasks.register("publishToAllPlatforms") {
     group       = "publishing"
-    description = "Publishes to both Modrinth and Curseforge sequentially."
-    dependsOn("publishAllToModrinthRelease")//, "publishAllToCurseforgeRelease")
+    description = "Publish all release groups to Modrinth and CurseForge sequentially."
+    dependsOn(releaseVersions.map { ":$it:publishMods" })
 }
 
 gradle.projectsEvaluated {
     releaseVersions.zipWithNext().forEach { (prev, next) ->
-        project(":$next").tasks.named("publishModrinth") {
-            mustRunAfter(":$prev:publishModrinth")
+        project(":$next").tasks.named("publishMods") {
+            mustRunAfter(":$prev:publishMods")
         }
-        /*
-        project(":$next").tasks.named("publishCurseforge") {
-            mustRunAfter(":$prev:publishCurseforge")
-        }
-        */
     }
 }

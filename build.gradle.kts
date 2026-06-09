@@ -143,7 +143,7 @@ tasks {
     }
 }
 
-if (sc.current.version == compatibleVersions.firstOrNull()) {
+if (sc.current.version in compatibleVersions) {
     val changelogFile = rootProject.file("CHANGELOG.md")
     val publishChangelog = if (changelogFile.exists()) changelogFile.readText() else "No changelog provided."
 
