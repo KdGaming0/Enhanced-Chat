@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,9 +28,12 @@ public class ChatScreenAnimationMixin {
     @Unique
     private static final float BASE_DISPLACEMENT_PX = 8f;
 
-    @Unique private boolean ec$initialized;
-    @Unique private long ec$openTime;
-    @Unique private boolean ec$barIdle = true;
+    @Unique
+    private boolean ec$initialized;
+    @Unique
+    private long ec$openTime;
+    @Unique
+    private boolean ec$barIdle = true;
 
     @Unique
     private float ec$barDisplacement() {

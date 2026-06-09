@@ -2,8 +2,6 @@ package com.github.kdgaming0.enhancedchat.chat.render;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -11,7 +9,12 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 
-/** Utilities for analysing Hypixel-formatted chat text. */
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utilities for analysing Hypixel-formatted chat text.
+ */
 public final class ChatTextHelper {
 
     public static final int HYPIXEL_DEFAULT_WIDTH = 320;
@@ -22,13 +25,16 @@ public final class ChatTextHelper {
     private static final int MIN_CENTERED_SEPARATOR_LEN = 10;
     private static final String COMPACT_SUFFIX_OPEN = " (×";
 
-    private ChatTextHelper() {}
+    private ChatTextHelper() {
+    }
 
     // -----------------------------------------------------------------
     // Conversions
     // -----------------------------------------------------------------
 
-    /** Collects a FormattedCharSequence into a plain String. */
+    /**
+     * Collects a FormattedCharSequence into a plain String.
+     */
     public static String getString(FormattedCharSequence sequence) {
         StringBuilder sb = new StringBuilder();
         sequence.accept((index, style, cp) -> {
@@ -75,7 +81,9 @@ public final class ChatTextHelper {
         };
     }
 
-    /** Rebuilds a Component from a sequence so Minecraft can word-wrap it. */
+    /**
+     * Rebuilds a Component from a sequence so Minecraft can word-wrap it.
+     */
     public static Component toComponent(FormattedCharSequence sequence) {
         MutableComponent result = Component.empty();
         StringBuilder buffer = new StringBuilder();
@@ -99,7 +107,9 @@ public final class ChatTextHelper {
         return result;
     }
 
-    /** First text colour in the sequence, defaulting to opaque white. */
+    /**
+     * First text colour in the sequence, defaulting to opaque white.
+     */
     public static int extractColor(FormattedCharSequence sequence) {
         int[] color = {0xFFFFFFFF};
         sequence.accept((index, style, cp) -> {

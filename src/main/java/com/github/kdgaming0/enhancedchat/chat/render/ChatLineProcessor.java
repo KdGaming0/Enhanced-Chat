@@ -1,11 +1,12 @@
 package com.github.kdgaming0.enhancedchat.chat.render;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Turns a message's raw lines into final display lines, tagging each with an optional
@@ -13,10 +14,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ChatLineProcessor {
 
-    /** Parallel arrays of the same length: {@code lines[i]} is rendered by {@code renderers[i]}. */
-    public record Result(List<FormattedCharSequence> lines, List<@Nullable CustomChatRenderer> renderers) {}
-
-    private ChatLineProcessor() {}
+    private ChatLineProcessor() {
+    }
 
     public static Result process(
             List<FormattedCharSequence> rawLines,
@@ -66,5 +65,11 @@ public final class ChatLineProcessor {
             }
         }
         return new Result(lines, renderers);
+    }
+
+    /**
+     * Parallel arrays of the same length: {@code lines[i]} is rendered by {@code renderers[i]}.
+     */
+    public record Result(List<FormattedCharSequence> lines, List<@Nullable CustomChatRenderer> renderers) {
     }
 }

@@ -5,11 +5,12 @@ import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import java.util.List;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+
+import java.util.List;
 
 /**
  * Hides messages that don't match the active chat tab.
@@ -22,6 +23,18 @@ import org.spongepowered.asm.mixin.Unique;
  */
 @Mixin(value = ChatComponent.class, priority = 900)
 public class ChatTabFilterMixin {
+
+    /**
+     * Reference-equality search. Needed because {@code addMessageToDisplayQueue} runs before
+     * {@code addMessageToQueue}, so the message frequently isn't in {@code history} yet.
+     */
+    @Unique
+    private static int identityIndexOf(List<GuiMessage> list, GuiMessage target) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == target) return i;
+        }
+        return -1;
+    }
 
     @WrapMethod(method = "addMessageToDisplayQueue")
     private void ec$filterByTab(GuiMessage message, Operation<Void> original) {
@@ -37,17 +50,5 @@ public class ChatTabFilterMixin {
         if (ChatFeatureState.get().tabs().shouldShow(message.content(), history, index)) {
             original.call(message);
         }
-    }
-
-    /**
-     * Reference-equality search. Needed because {@code addMessageToDisplayQueue} runs before
-     * {@code addMessageToQueue}, so the message frequently isn't in {@code history} yet.
-     */
-    @Unique
-    private static int identityIndexOf(List<GuiMessage> list, GuiMessage target) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i) == target) return i;
-        }
-        return -1;
     }
 }

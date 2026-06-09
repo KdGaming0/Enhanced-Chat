@@ -5,12 +5,15 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 
-/** Draws a chat line centered horizontally in the chat area. */
+/**
+ * Draws a chat line centered horizontally in the chat area.
+ */
 public final class CenteredTextRenderer implements CustomChatRenderer {
 
     public static final CenteredTextRenderer INSTANCE = new CenteredTextRenderer();
 
-    private CenteredTextRenderer() {}
+    private CenteredTextRenderer() {
+    }
 
     @Override
     public void render(

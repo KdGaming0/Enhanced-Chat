@@ -12,21 +12,20 @@ import java.util.regex.Pattern;
  */
 public final class ChatTabFilters {
 
-    private ChatTabFilters() {}
-
     public static final Predicate<String> ALL = s -> true;
-
     public static final Predicate<String> PARTY = ChatTabFilters::isPartyMessage;
     public static final Predicate<String> GUILD = ChatTabFilters::isGuildMessage;
     public static final Predicate<String> PRIVATE_MESSAGE = ChatTabFilters::isPrivateMessage;
     public static final Predicate<String> COOP = ChatTabFilters::isCoopMessage;
+    private static final Pattern USER_MESSAGE_PATTERN = Pattern.compile(
+            "^(?:(?:Party|Guild|Co-op|Officer) > |(?:To|From) |Friend > )?(?:\\[[^]]+] )*[a-zA-Z0-9_]{1,16}(?: \\[[^]]+])?: .*"
+    );
     public static final Predicate<String> USER = ChatTabFilters::isUserMessage;
 
     // -- User ---------------------------------------------------------
 
-    private static final Pattern USER_MESSAGE_PATTERN = Pattern.compile(
-            "^(?:(?:Party|Guild|Co-op|Officer) > |(?:To|From) |Friend > )?(?:\\[[^]]+] )*[a-zA-Z0-9_]{1,16}(?: \\[[^]]+])?: .*"
-    );
+    private ChatTabFilters() {
+    }
 
     private static boolean isUserMessage(String s) {
         return USER_MESSAGE_PATTERN.matcher(s).matches();

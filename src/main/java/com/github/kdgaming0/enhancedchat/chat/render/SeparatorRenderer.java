@@ -13,11 +13,31 @@ import org.jspecify.annotations.Nullable;
 public record SeparatorRenderer(int lineColor, @Nullable String middleText)
         implements CustomChatRenderer {
 
-    /** Hypixel's heavy-block separator; rendered as a thicker line. */
+    /**
+     * Hypixel's heavy-block separator; rendered as a thicker line.
+     */
     private static final int BLOCK_CHAR = '▬';
 
     private static final int TEXT_PADDING = 4;
     private static final float SHADOW_FACTOR = 0.25f;
+
+    private static void drawLineSegment(
+            GuiGraphicsExtractor graphics, int x, int y, int xEnd, int thickness, int color, int shadow) {
+        graphics.fill(x + 1, y + 1, xEnd - 1, y + thickness + 1, shadow);
+        graphics.fill(x, y, xEnd - 2, y + thickness, color);
+    }
+
+    private static boolean containsBlockChar(FormattedCharSequence text) {
+        boolean[] found = {false};
+        text.accept((index, style, cp) -> {
+            if (cp == BLOCK_CHAR) {
+                found[0] = true;
+                return false;
+            }
+            return true;
+        });
+        return found[0];
+    }
 
     @Override
     public void render(
@@ -61,23 +81,5 @@ public record SeparatorRenderer(int lineColor, @Nullable String middleText)
         // Even separators with middle text carry no clickable content, so hit-testing is
         // unconditionally off. Mouse interaction on these lines is intentional no-op.
         return HitTest.DISABLED;
-    }
-
-    private static void drawLineSegment(
-            GuiGraphicsExtractor graphics, int x, int y, int xEnd, int thickness, int color, int shadow) {
-        graphics.fill(x + 1, y + 1, xEnd - 1, y + thickness + 1, shadow);
-        graphics.fill(x, y, xEnd - 2, y + thickness, color);
-    }
-
-    private static boolean containsBlockChar(FormattedCharSequence text) {
-        boolean[] found = {false};
-        text.accept((index, style, cp) -> {
-            if (cp == BLOCK_CHAR) {
-                found[0] = true;
-                return false;
-            }
-            return true;
-        });
-        return found[0];
     }
 }

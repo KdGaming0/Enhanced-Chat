@@ -2,7 +2,6 @@ package com.github.kdgaming0.enhancedchat.chat.render;
 
 import com.github.kdgaming0.enhancedchat.chat.ChatLineTracker;
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
-import java.util.function.Consumer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -13,6 +12,8 @@ import net.minecraft.util.FormattedCharSequence;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * Intercepts vanilla chat rendering to dispatch to {@link CustomChatRenderer}s and to draw the
@@ -28,9 +29,8 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
     private static final int OUTLINE_LEFT_INSET = -4;
     private static final int OUTLINE_RIGHT_INSET = 8;
     private static final int OFFSCREEN_Y = -10000;
-
-    private ChatComponent.ChatGraphicsAccess delegate;
     private final ChatAccess chatAccess;
+    private ChatComponent.ChatGraphicsAccess delegate;
     private @Nullable GuiGraphicsExtractor graphics;
     private Font font;
 
@@ -58,7 +58,7 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
      * Call once before each chat render when reusing a proxy instance.
      */
     public void prepareForFrame(ChatComponent.ChatGraphicsAccess delegate,
-                                 @Nullable GuiGraphicsExtractor graphics, Font font) {
+                                @Nullable GuiGraphicsExtractor graphics, Font font) {
         this.delegate = delegate;
         this.graphics = graphics;
         this.font = font;

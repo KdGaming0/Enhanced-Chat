@@ -21,8 +21,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = ChatComponent.class, priority = Integer.MAX_VALUE)
 public abstract class CompactChatMixin {
 
-    @Unique private CompactMessageHandler ec$compactHandler;
-    @Unique private boolean ec$compactedThisMessage;
+    @Unique
+    private CompactMessageHandler ec$compactHandler;
+    @Unique
+    private boolean ec$compactedThisMessage;
 
     @Unique
     private CompactMessageHandler ec$handler() {

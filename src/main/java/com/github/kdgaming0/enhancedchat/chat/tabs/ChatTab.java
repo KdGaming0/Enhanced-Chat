@@ -2,7 +2,9 @@ package com.github.kdgaming0.enhancedchat.chat.tabs;
 
 import java.util.function.Predicate;
 
-/** A Hypixel channel tab: its label, the command that switches into the channel, and its filter. */
+/**
+ * A Hypixel channel tab: its label, the command that switches into the channel, and its filter.
+ */
 public enum ChatTab {
     ALL("A", "/chat a", ChatTabFilters.ALL),
     USER("User", "", ChatTabFilters.USER),

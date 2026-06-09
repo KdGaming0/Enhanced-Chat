@@ -12,7 +12,8 @@ public final class HypixelLocationState {
     private static boolean onHypixel = false;
     private static boolean onSkyblock = false;
 
-    private HypixelLocationState() {}
+    private HypixelLocationState() {
+    }
 
     public static void register() {
         HypixelPacketEvents.HELLO.register(packet -> onHypixel = true);

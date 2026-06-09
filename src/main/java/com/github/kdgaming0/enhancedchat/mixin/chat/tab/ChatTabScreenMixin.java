@@ -3,13 +3,13 @@ package com.github.kdgaming0.enhancedchat.mixin.chat.tab;
 import com.github.kdgaming0.enhancedchat.chat.ChatFeatureState;
 import com.github.kdgaming0.enhancedchat.chat.search.ChatSearchTheme;
 import com.github.kdgaming0.enhancedchat.chat.tabs.ChatTab;
+import com.github.kdgaming0.enhancedchat.chat.tabs.ChatTabButton;
 import com.github.kdgaming0.enhancedchat.chat.tabs.ChatTabController;
 import com.github.kdgaming0.enhancedchat.chat.tabs.ChatTabSprites;
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
-import com.github.kdgaming0.enhancedchat.chat.tabs.ChatTabButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,7 +24,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Adds Hypixel channel tab buttons above the chat input field. */
+/**
+ * Adds Hypixel channel tab buttons above the chat input field.
+ */
 @Mixin(ChatScreen.class)
 public abstract class ChatTabScreenMixin extends Screen {
 
@@ -37,9 +39,12 @@ public abstract class ChatTabScreenMixin extends Screen {
     @Unique
     private static final int TAB_BOTTOM_MARGIN = 14;
 
-    @Shadow protected EditBox input;
+    @Shadow
+    protected EditBox input;
 
-    protected ChatTabScreenMixin(Component title) { super(title); }
+    protected ChatTabScreenMixin(Component title) {
+        super(title);
+    }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void ec$addTabButtons(CallbackInfo ci) {

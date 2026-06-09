@@ -4,8 +4,6 @@ import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import java.util.List;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
@@ -19,6 +17,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 /**
  * Slides newly-arriving chat messages up into view instead of popping them in instantly.
@@ -34,13 +34,20 @@ public abstract class ChatAnimationMixin {
     @Unique
     private static final float ANIMATION_LINE_FACTOR = 0.8f;
 
-    @Shadow private int chatScrollbarPos;
-    @Shadow @Final private List<GuiMessage.Line> trimmedMessages;
-    @Shadow protected abstract int getLineHeight();
+    @Shadow
+    private int chatScrollbarPos;
+    @Shadow
+    @Final
+    private List<GuiMessage.Line> trimmedMessages;
+    @Unique
+    private long ec$lastMessageTime;
+    @Unique
+    private int ec$displaySizeBefore;
+    @Unique
+    private boolean ec$animationIdle = true;
 
-    @Unique private long ec$lastMessageTime;
-    @Unique private int ec$displaySizeBefore;
-    @Unique private boolean ec$animationIdle = true;
+    @Shadow
+    protected abstract int getLineHeight();
 
     @Unique
     private float ec$displacement() {

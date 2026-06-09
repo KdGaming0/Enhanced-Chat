@@ -11,7 +11,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -26,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 /**
  * Adapter between vanilla {@link ChatComponent} and the chat-rendering feature classes.
  *
@@ -37,30 +38,68 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatComponent.class)
 public abstract class ChatRenderingMixin implements ChatAccess {
 
-    @Shadow @Final private List<GuiMessage.Line> trimmedMessages;
-    @Shadow @Final private List<GuiMessage> allMessages;
-    @Shadow private int chatScrollbarPos;
-    @Shadow private boolean newMessageSinceScroll;
-
-    @Shadow private int getWidth() { throw new AssertionError(); }
-    @Shadow private double getScale() { throw new AssertionError(); }
-    @Shadow private void refreshTrimmedMessages() {}
-
-    @Unique private final ChatLineTracker ec$lineTracker = new ChatLineTracker();
-
+    @Unique
+    private final ChatLineTracker ec$lineTracker = new ChatLineTracker();
+    @Shadow
+    @Final
+    private List<GuiMessage.Line> trimmedMessages;
+    @Shadow
+    @Final
+    private List<GuiMessage> allMessages;
+    @Shadow
+    private int chatScrollbarPos;
+    @Shadow
+    private boolean newMessageSinceScroll;
     // Proxy reuse cache — avoids per-frame allocation when delegate/font/line-spacing are stable.
-    @Unique private ChatGraphicsAccessProxy ec$renderProxy;
-    @Unique private ChatComponent.ChatGraphicsAccess ec$lastDelegate;
-    @Unique private Font ec$lastProxyFont;
-    @Unique private double ec$lastLineSpacing = -1.0;
+    @Unique
+    private ChatGraphicsAccessProxy ec$renderProxy;
+    @Unique
+    private ChatComponent.ChatGraphicsAccess ec$lastDelegate;
+    @Unique
+    private Font ec$lastProxyFont;
+    @Unique
+    private double ec$lastLineSpacing = -1.0;
+
+    @Shadow
+    private int getWidth() {
+        throw new AssertionError();
+    }
+
+    @Shadow
+    private double getScale() {
+        throw new AssertionError();
+    }
+
+    @Shadow
+    private void refreshTrimmedMessages() {
+    }
 
     // ---------- ChatAccess ----------
 
-    @Override public List<GuiMessage> ec$getAllMessages() { return allMessages; }
-    @Override public List<GuiMessage.Line> ec$getTrimmedMessages() { return trimmedMessages; }
-    @Override public int ec$getChatScrollbarPos() { return chatScrollbarPos; }
-    @Override public int ec$getScaledWidth() { return Mth.floor(getWidth() / getScale()); }
-    @Override public ChatLineTracker ec$getLineTracker() { return ec$lineTracker; }
+    @Override
+    public List<GuiMessage> ec$getAllMessages() {
+        return allMessages;
+    }
+
+    @Override
+    public List<GuiMessage.Line> ec$getTrimmedMessages() {
+        return trimmedMessages;
+    }
+
+    @Override
+    public int ec$getChatScrollbarPos() {
+        return chatScrollbarPos;
+    }
+
+    @Override
+    public int ec$getScaledWidth() {
+        return Mth.floor(getWidth() / getScale());
+    }
+
+    @Override
+    public ChatLineTracker ec$getLineTracker() {
+        return ec$lineTracker;
+    }
 
     /**
      * Rebuilds the display queue while preserving the player's scroll offset.

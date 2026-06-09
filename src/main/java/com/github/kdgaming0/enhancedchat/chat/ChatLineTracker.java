@@ -3,10 +3,11 @@ package com.github.kdgaming0.enhancedchat.chat;
 import com.github.kdgaming0.enhancedchat.chat.render.CustomChatRenderer;
 import com.github.kdgaming0.enhancedchat.chat.search.ChatSearchController;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import java.util.Map;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Map;
 
 /**
  * Per-ChatComponent bookkeeping shared by every chat feature that needs to correlate a
@@ -25,11 +26,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ChatLineTracker {
 
-    private record Entry(GuiMessage parent, @Nullable CustomChatRenderer renderer) {}
-
     private final Map<FormattedCharSequence, Entry> byContent = new Reference2ObjectOpenHashMap<>();
     private final Reference2ObjectOpenHashMap<GuiMessage, String> searchableText = new Reference2ObjectOpenHashMap<>();
-
     private @Nullable GuiMessage pendingParent;
     private @Nullable GuiMessage selectedMessage;
 
@@ -42,7 +40,9 @@ public final class ChatLineTracker {
         this.pendingParent = null;
     }
 
-    /** Associates a freshly-added display line with its parent message and optional renderer. */
+    /**
+     * Associates a freshly-added display line with its parent message and optional renderer.
+     */
     public void recordLine(GuiMessage.Line line, @Nullable CustomChatRenderer renderer) {
         if (pendingParent == null) return;
         byContent.put(line.content(), new Entry(pendingParent, renderer));
@@ -52,7 +52,9 @@ public final class ChatLineTracker {
         byContent.remove(line.content());
     }
 
-    /** Discards all per-line state AND any active selection. Use on full history clear. */
+    /**
+     * Discards all per-line state AND any active selection. Use on full history clear.
+     */
     public void clearAll() {
         byContent.clear();
         searchableText.clear();
@@ -82,18 +84,23 @@ public final class ChatLineTracker {
         return parentFor(line.content());
     }
 
-    public void setSelectedMessage(@Nullable GuiMessage message) {
-        this.selectedMessage = message;
-    }
-
     public @Nullable GuiMessage getSelectedMessage() {
         return selectedMessage;
     }
 
-    /** Returns the pre-computed searchable plain text for a message, computing on demand if absent. */
+    public void setSelectedMessage(@Nullable GuiMessage message) {
+        this.selectedMessage = message;
+    }
+
+    /**
+     * Returns the pre-computed searchable plain text for a message, computing on demand if absent.
+     */
     public String getSearchableText(GuiMessage message) {
         String cached = searchableText.get(message);
         if (cached != null) return cached;
         return ChatSearchController.toSearchable(message.content());
+    }
+
+    private record Entry(GuiMessage parent, @Nullable CustomChatRenderer renderer) {
     }
 }

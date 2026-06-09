@@ -1,8 +1,9 @@
 package com.github.kdgaming0.enhancedchat.chat.access;
 
 import com.github.kdgaming0.enhancedchat.chat.ChatLineTracker;
-import java.util.List;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
+
+import java.util.List;
 
 /**
  * Duck interface mixed into {@link net.minecraft.client.gui.components.ChatComponent}.

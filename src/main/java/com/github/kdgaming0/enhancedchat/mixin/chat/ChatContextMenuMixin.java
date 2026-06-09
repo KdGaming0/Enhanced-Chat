@@ -32,9 +32,12 @@ public abstract class ChatContextMenuMixin extends Screen {
     @Unique
     private static final int MOUSE_BUTTON_RIGHT = 1;
 
-    @Unique private final ChatContextMenu ec$contextMenu = new ChatContextMenu();
+    @Unique
+    private final ChatContextMenu ec$contextMenu = new ChatContextMenu();
 
-    protected ChatContextMenuMixin(Component title) { super(title); }
+    protected ChatContextMenuMixin(Component title) {
+        super(title);
+    }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void ec$onMouseClicked(
@@ -89,7 +92,9 @@ public abstract class ChatContextMenuMixin extends Screen {
         ec$contextMenu.close();
     }
 
-    /** Direct copy path: flash the outline briefly, copy raw text, show the toast. */
+    /**
+     * Direct copy path: flash the outline briefly, copy raw text, show the toast.
+     */
     @Unique
     private void ec$directCopy(GuiMessage message, int x, int y) {
         Minecraft mc = Minecraft.getInstance();

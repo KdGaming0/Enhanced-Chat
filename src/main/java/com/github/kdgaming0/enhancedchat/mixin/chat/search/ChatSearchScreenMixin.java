@@ -33,15 +33,30 @@ public abstract class ChatSearchScreenMixin extends Screen {
     @Unique
     private static final int SEARCH_INPUT_MAX_LEN = 128;
 
-    @Shadow protected EditBox input;
+    @Shadow
+    protected EditBox input;
 
-    @Unique private EditBox ec$searchBox;
-    @Unique private String ec$pendingQuery;
-    @Unique private long ec$hintShownAt = -1L;
+    @Unique
+    private EditBox ec$searchBox;
+    @Unique
+    private String ec$pendingQuery;
+    @Unique
+    private long ec$hintShownAt = -1L;
 
-    protected ChatSearchScreenMixin(Component title) { super(title); }
+    protected ChatSearchScreenMixin(Component title) {
+        super(title);
+    }
 
     // -- Lifecycle ----------------------------------------------------
+
+    @Unique
+    private static int ec$fadeAlpha(long elapsed) {
+        long fadeStart = ChatSearchTheme.HINT_DURATION_MS - ChatSearchTheme.HINT_FADE_MS;
+        float alpha = elapsed < fadeStart
+                ? 1f
+                : 1f - (elapsed - fadeStart) / (float) ChatSearchTheme.HINT_FADE_MS;
+        return (int) (alpha * 0xFF) & 0xFF;
+    }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void ec$initSearchBar(CallbackInfo ci) {
@@ -64,6 +79,8 @@ public abstract class ChatSearchScreenMixin extends Screen {
         input.setCanLoseFocus(true);
     }
 
+    // -- Keys ---------------------------------------------------------
+
     @Inject(method = "removed", at = @At("HEAD"))
     private void ec$clearSearchOnClose(CallbackInfo ci) {
         ChatSearchController search = ChatFeatureState.get().search();
@@ -72,8 +89,6 @@ public abstract class ChatSearchScreenMixin extends Screen {
             ec$refreshChat();
         }
     }
-
-    // -- Keys ---------------------------------------------------------
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
     private void ec$handleSearchKeys(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
@@ -93,7 +108,11 @@ public abstract class ChatSearchScreenMixin extends Screen {
         }
     }
 
-    /** @return {@code true} if Esc was consumed; {@code false} to let the screen close. */
+    // -- Rendering ----------------------------------------------------
+
+    /**
+     * @return {@code true} if Esc was consumed; {@code false} to let the screen close.
+     */
     @Unique
     private boolean ec$handleEscape(ChatSearchController search) {
         // First press with text: clear the query but keep the bar open.
@@ -110,8 +129,6 @@ public abstract class ChatSearchScreenMixin extends Screen {
         ec$closeSearch();
         return true;
     }
-
-    // -- Rendering ----------------------------------------------------
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void ec$renderSearchBackground(
@@ -169,15 +186,6 @@ public abstract class ChatSearchScreenMixin extends Screen {
         int infoY = ChatSearchTheme.searchBarY(height)
                 + (ChatSearchTheme.SEARCH_BAR_HEIGHT - 8) / 2;
         graphics.text(font, info, infoX, infoY, ChatSearchTheme.MATCH_COUNT_TEXT, false);
-    }
-
-    @Unique
-    private static int ec$fadeAlpha(long elapsed) {
-        long fadeStart = ChatSearchTheme.HINT_DURATION_MS - ChatSearchTheme.HINT_FADE_MS;
-        float alpha = elapsed < fadeStart
-                ? 1f
-                : 1f - (elapsed - fadeStart) / (float) ChatSearchTheme.HINT_FADE_MS;
-        return (int) (alpha * 0xFF) & 0xFF;
     }
 
     // -- Internal state changes ---------------------------------------

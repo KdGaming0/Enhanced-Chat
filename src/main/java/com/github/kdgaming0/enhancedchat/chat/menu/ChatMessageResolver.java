@@ -5,7 +5,6 @@ import com.github.kdgaming0.enhancedchat.chat.render.ChatTextHelper;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -14,6 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Maps cursor positions to messages and converts {@link Component}s into copyable strings
@@ -26,14 +27,19 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ChatMessageResolver {
 
-    /** Chat area bottom margin (pixels from screen bottom to the bottom of the newest line). */
+    /**
+     * Chat area bottom margin (pixels from screen bottom to the bottom of the newest line).
+     */
     private static final int CHAT_BOTTOM_MARGIN = 40;
 
     private static final Int2ObjectMap<ChatFormatting> FORMAT_BY_RGB = buildColorLookup();
 
-    private ChatMessageResolver() {}
+    private ChatMessageResolver() {
+    }
 
-    /** @return the message under the given screen coordinates, or {@code null} if none. */
+    /**
+     * @return the message under the given screen coordinates, or {@code null} if none.
+     */
     public static @Nullable GuiMessage resolve(double screenY) {
         Minecraft mc = Minecraft.getInstance();
         ChatComponent chat = mc.gui.getChat();
@@ -62,7 +68,9 @@ public final class ChatMessageResolver {
     // Text extraction
     // -----------------------------------------------------------------
 
-    /** Plain text with all formatting and compact suffixes stripped. */
+    /**
+     * Plain text with all formatting and compact suffixes stripped.
+     */
     public static String toRawText(Component content) {
         String plain = ChatFormatting.stripFormatting(content.getString());
         return ChatTextHelper.stripCompactSuffix(plain);
@@ -78,7 +86,9 @@ public final class ChatMessageResolver {
         return sep >= 0 ? plain.substring(sep + 2) : plain;
     }
 
-    /** Text with {@code &}-prefixed color/format codes preserved. */
+    /**
+     * Text with {@code &}-prefixed color/format codes preserved.
+     */
     public static String toFormattedText(Component content) {
         StringBuilder sb = new StringBuilder();
         Style[] previous = {Style.EMPTY};
@@ -106,11 +116,11 @@ public final class ChatMessageResolver {
             ChatFormatting fmt = FORMAT_BY_RGB.get(color.getValue());
             if (fmt != null) sb.append('&').append(fmt.getChar());
         }
-        if (style.isBold())          sb.append("&l");
-        if (style.isItalic())        sb.append("&o");
-        if (style.isUnderlined())    sb.append("&n");
+        if (style.isBold()) sb.append("&l");
+        if (style.isItalic()) sb.append("&o");
+        if (style.isUnderlined()) sb.append("&n");
         if (style.isStrikethrough()) sb.append("&m");
-        if (style.isObfuscated())    sb.append("&k");
+        if (style.isObfuscated()) sb.append("&k");
     }
 
     private static Int2ObjectMap<ChatFormatting> buildColorLookup() {

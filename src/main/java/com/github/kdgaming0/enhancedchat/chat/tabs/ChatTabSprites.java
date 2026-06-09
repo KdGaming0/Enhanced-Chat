@@ -1,11 +1,13 @@
 package com.github.kdgaming0.enhancedchat.chat.tabs;
 
-import static com.github.kdgaming0.enhancedchat.EnhancedChat.MOD_ID;
-
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.resources.Identifier;
 
-/** Resource-pack-retexturable sprite sets for chat tab buttons. */
+import static com.github.kdgaming0.enhancedchat.EnhancedChat.MOD_ID;
+
+/**
+ * Resource-pack-retexturable sprite sets for chat tab buttons.
+ */
 public final class ChatTabSprites {
 
     public static final WidgetSprites INACTIVE = new WidgetSprites(
@@ -18,5 +20,6 @@ public final class ChatTabSprites {
             Identifier.fromNamespaceAndPath(MOD_ID, "chat/button_disabled"),
             Identifier.fromNamespaceAndPath(MOD_ID, "chat/button_toggled_highlighted"));
 
-    private ChatTabSprites() {}
+    private ChatTabSprites() {
+    }
 }

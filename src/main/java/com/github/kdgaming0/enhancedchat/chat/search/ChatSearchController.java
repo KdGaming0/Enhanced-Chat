@@ -2,11 +2,12 @@ package com.github.kdgaming0.enhancedchat.chat.search;
 
 import com.github.kdgaming0.enhancedchat.chat.ChatLineTracker;
 import com.github.kdgaming0.enhancedchat.chat.render.ChatTextHelper;
-import java.util.List;
-import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Owns the chat search query and decides whether individual messages pass the filter.
@@ -24,16 +25,13 @@ public final class ChatSearchController {
     private String rawQuery = "";
     private String[] tokens = NO_TOKENS;
 
+    public static String toSearchable(Component content) {
+        String plain = ChatFormatting.stripFormatting(content.getString());
+        return ChatTextHelper.stripCompactSuffix(plain).toLowerCase(Locale.ROOT);
+    }
+
     public boolean isActive() {
         return active;
-    }
-
-    public boolean isFiltering() {
-        return active && tokens.length > 0;
-    }
-
-    public String getQuery() {
-        return rawQuery;
     }
 
     public void setActive(boolean value) {
@@ -42,6 +40,14 @@ public final class ChatSearchController {
             this.rawQuery = "";
             this.tokens = NO_TOKENS;
         }
+    }
+
+    public boolean isFiltering() {
+        return active && tokens.length > 0;
+    }
+
+    public String getQuery() {
+        return rawQuery;
     }
 
     public void setQuery(String query) {
@@ -89,10 +95,5 @@ public final class ChatSearchController {
             if (!plain.contains(token)) return false;
         }
         return true;
-    }
-
-    public static String toSearchable(Component content) {
-        String plain = ChatFormatting.stripFormatting(content.getString());
-        return ChatTextHelper.stripCompactSuffix(plain).toLowerCase(Locale.ROOT);
     }
 }

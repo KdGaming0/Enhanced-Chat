@@ -2,10 +2,11 @@ package com.github.kdgaming0.enhancedchat.chat.tabs;
 
 import com.github.kdgaming0.enhancedchat.chat.render.ChatTextHelper;
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
-import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
 
 /**
  * Owns the currently active chat tab and decides per-message visibility.
@@ -20,9 +21,22 @@ public final class ChatTabController {
 
     private ChatTab activeTab = ChatTab.ALL;
 
+    private static String plainText(Component message) {
+        String plain = ChatFormatting.stripFormatting(message.getString());
+        return ChatTextHelper.stripCompactSuffix(plain).trim();
+    }
+
+    private static boolean isSeparator(String plain) {
+        return ChatTextHelper.isFullSeparator(plain) || ChatTextHelper.isCenteredSeparator(plain);
+    }
+
     public ChatTab getActiveTab() {
         return activeTab;
     }
+
+    // -----------------------------------------------------------------
+    // Separator handling
+    // -----------------------------------------------------------------
 
     public void setActiveTab(ChatTab tab) {
         this.activeTab = tab;
@@ -46,7 +60,7 @@ public final class ChatTabController {
     }
 
     // -----------------------------------------------------------------
-    // Separator handling
+    // Text helpers
     // -----------------------------------------------------------------
 
     /**
@@ -85,18 +99,5 @@ public final class ChatTabController {
         String plain = plainText(message.content());
         if (isSeparator(plain)) return false;
         return activeTab.matches(plain);
-    }
-
-    // -----------------------------------------------------------------
-    // Text helpers
-    // -----------------------------------------------------------------
-
-    private static String plainText(Component message) {
-        String plain = ChatFormatting.stripFormatting(message.getString());
-        return ChatTextHelper.stripCompactSuffix(plain).trim();
-    }
-
-    private static boolean isSeparator(String plain) {
-        return ChatTextHelper.isFullSeparator(plain) || ChatTextHelper.isCenteredSeparator(plain);
     }
 }

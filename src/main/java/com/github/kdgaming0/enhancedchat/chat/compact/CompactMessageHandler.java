@@ -3,15 +3,16 @@ package com.github.kdgaming0.enhancedchat.chat.compact;
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
 import com.github.kdgaming0.enhancedchat.chat.render.ChatTextHelper;
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import org.jspecify.annotations.Nullable;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Detects repeats of identical chat messages and replaces the older occurrence with a single
@@ -49,21 +50,10 @@ public final class CompactMessageHandler {
     private static final Style COUNT_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
     private static final String COUNT_PREFIX = " (×";
     private static final String COUNT_SUFFIX = ")";
-
-    /** Per-message compaction state. */
-    private static final class Entry {
-        int count;
-        long firstSeenMs;
-
-        Entry(long nowMs) {
-            this.count = 1;
-            this.firstSeenMs = nowMs;
-        }
-    }
-
     private final ChatAccess chatAccess;
-
-    /** Access-order LRU; see class javadoc for why. */
+    /**
+     * Access-order LRU; see class javadoc for why.
+     */
     private final Map<String, Entry> entries =
             new LinkedHashMap<>(64, 0.75f, /* accessOrder */ true) {
                 @Override
@@ -71,11 +61,55 @@ public final class CompactMessageHandler {
                     return size() > MAX_TRACKED_MESSAGES;
                 }
             };
-
     private @Nullable String previousMessage;
 
     public CompactMessageHandler(ChatAccess chatAccess) {
         this.chatAccess = chatAccess;
+    }
+
+    private static boolean isEligibleForCompaction(Entry entry, boolean isConsecutive, long nowMs) {
+        if (EnhancedChatConfig.onlyCompactConsecutive) {
+            return isConsecutive;
+        }
+
+        int windowMinutes = EnhancedChatConfig.compactTimeWindowMinutes;
+        if (windowMinutes > 0) {
+            long windowMs = (long) windowMinutes * 60_000L;
+            return (nowMs - entry.firstSeenMs) <= windowMs;
+        }
+
+        return true;
+    }
+
+    private static MutableComponent withCountSuffix(Component message, int count) {
+        MutableComponent result = message.copy();
+        result.append(Component.literal(COUNT_PREFIX + count + COUNT_SUFFIX).setStyle(COUNT_STYLE));
+        return result;
+    }
+
+    private static boolean isInteractable(Component component) {
+        if (component.getStyle().getClickEvent() != null) {
+            return true;
+        }
+        for (Component sibling : component.getSiblings()) {
+            if (isInteractable(sibling)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // -----------------------------------------------------------------
+    // Eligibility
+    // -----------------------------------------------------------------
+
+    private static boolean isAuxiliaryLine(GuiMessage message) {
+        String text = message.content().getString().trim();
+        return text.isEmpty() || isSeparator(text);
+    }
+
+    private static boolean isSeparator(String trimmed) {
+        return ChatTextHelper.isFullSeparator(trimmed) || ChatTextHelper.isCenteredSeparator(trimmed);
     }
 
     /**
@@ -112,50 +146,14 @@ public final class CompactMessageHandler {
         return withCountSuffix(message, entry.count);
     }
 
+    // -----------------------------------------------------------------
+    // History manipulation
+    // -----------------------------------------------------------------
+
     public void clear() {
         entries.clear();
         previousMessage = null;
     }
-
-    // -----------------------------------------------------------------
-    // Eligibility
-    // -----------------------------------------------------------------
-
-    private static boolean isEligibleForCompaction(Entry entry, boolean isConsecutive, long nowMs) {
-        if (EnhancedChatConfig.onlyCompactConsecutive) {
-            return isConsecutive;
-        }
-
-        int windowMinutes = EnhancedChatConfig.compactTimeWindowMinutes;
-        if (windowMinutes > 0) {
-            long windowMs = (long) windowMinutes * 60_000L;
-            return (nowMs - entry.firstSeenMs) <= windowMs;
-        }
-
-        return true;
-    }
-
-    private static MutableComponent withCountSuffix(Component message, int count) {
-        MutableComponent result = message.copy();
-        result.append(Component.literal(COUNT_PREFIX + count + COUNT_SUFFIX).setStyle(COUNT_STYLE));
-        return result;
-    }
-
-    private static boolean isInteractable(Component component) {
-        if (component.getStyle().getClickEvent() != null) {
-            return true;
-        }
-        for (Component sibling : component.getSiblings()) {
-            if (isInteractable(sibling)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // -----------------------------------------------------------------
-    // History manipulation
-    // -----------------------------------------------------------------
 
     /**
      * Removes the prior occurrence of {@code raw} and any separator/blank lines that are
@@ -187,12 +185,16 @@ public final class CompactMessageHandler {
         }
     }
 
-    private static boolean isAuxiliaryLine(GuiMessage message) {
-        String text = message.content().getString().trim();
-        return text.isEmpty() || isSeparator(text);
-    }
+    /**
+     * Per-message compaction state.
+     */
+    private static final class Entry {
+        int count;
+        long firstSeenMs;
 
-    private static boolean isSeparator(String trimmed) {
-        return ChatTextHelper.isFullSeparator(trimmed) || ChatTextHelper.isCenteredSeparator(trimmed);
+        Entry(long nowMs) {
+            this.count = 1;
+            this.firstSeenMs = nowMs;
+        }
     }
 }

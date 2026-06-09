@@ -18,7 +18,8 @@ public final class ChatFeatureState {
     private final ChatSearchController search = new ChatSearchController();
     private final ChatTabController tabs = new ChatTabController();
 
-    private ChatFeatureState() {}
+    private ChatFeatureState() {
+    }
 
     public static ChatFeatureState get() {
         return INSTANCE;

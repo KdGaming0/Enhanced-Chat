@@ -3,7 +3,7 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "Quality-of-life chat enhancements for Hypixel SkyBlock and general use.",
+  "description": "A quality-of-life chat upgrade for Hypixel SkyBlock and general use.\nAdds better formatting, search, filtering, and other small improvements.",
   "authors": [
     "Kd_Gaming1"
   ],

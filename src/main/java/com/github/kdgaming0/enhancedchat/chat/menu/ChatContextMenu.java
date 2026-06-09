@@ -1,9 +1,6 @@
 package com.github.kdgaming0.enhancedchat.chat.menu;
 
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -11,6 +8,10 @@ import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Right-click overlay offering copy and delete actions on a chat message. The menu is
@@ -36,10 +37,6 @@ public final class ChatContextMenu {
     private static final int TOAST_PADDING_Y = 2;
     private static final String TOAST_COPIED = "Copied!";
     private static final String TOAST_DELETED = "Deleted!";
-
-    /** A single entry in the menu: label, optional tooltip, action, and the toast shown on success. */
-    public record MenuAction(String label, @Nullable String tooltip, Consumer<GuiMessage> handler, String toastLabel) {}
-
     public static final List<MenuAction> DEFAULT_ACTIONS = List.of(
             new MenuAction("Copy Text",
                     "Copy the full message as plain text",
@@ -57,23 +54,36 @@ public final class ChatContextMenu {
                     "Remove this message from chat history",
                     ChatContextMenu::deleteMessage,
                     TOAST_DELETED));
-
     private final List<MenuAction> actions;
     private final List<ButtonLayout> buttons = new ArrayList<>();
-
     private @Nullable GuiMessage target;
     private int menuX, menuY, menuWidth, menuHeight;
-
     private int toastX, toastY;
     private long toastStartMs = -1L;
     private String toastLabel = TOAST_COPIED;
-
     public ChatContextMenu() {
         this(DEFAULT_ACTIONS);
     }
 
     public ChatContextMenu(List<MenuAction> actions) {
         this.actions = List.copyOf(actions);
+    }
+
+    private static void copyToClipboard(String text) {
+        Minecraft.getInstance().keyboardHandler.setClipboard(text);
+    }
+
+    private static void deleteMessage(GuiMessage message) {
+        ChatAccess access = (ChatAccess) Minecraft.getInstance().gui.getChat();
+        if (access.ec$getAllMessages().remove(message)) {
+            access.ec$refreshMessages();
+        }
+    }
+
+    private static void setHighlightedMessage(@Nullable GuiMessage message) {
+        Minecraft mc = Minecraft.getInstance();
+        ChatAccess access = (ChatAccess) mc.gui.getChat();
+        access.ec$getLineTracker().setSelectedMessage(message);
     }
 
     public boolean isOpen() {
@@ -105,12 +115,20 @@ public final class ChatContextMenu {
         drawToast(graphics);
     }
 
-    /** Shows the "Copied!" toast near the given screen position. */
+    /**
+     * Shows the "Copied!" toast near the given screen position.
+     */
     public void notifyCopied(int screenX, int screenY) {
         showToast(TOAST_COPIED, screenX, screenY);
     }
 
-    /** Shows an arbitrary toast label near the given screen position. */
+    // -----------------------------------------------------------------
+    // Layout
+    // -----------------------------------------------------------------
+
+    /**
+     * Shows an arbitrary toast label near the given screen position.
+     */
     public void showToast(String label, int screenX, int screenY) {
         this.toastLabel = label;
         this.toastX = screenX;
@@ -118,7 +136,9 @@ public final class ChatContextMenu {
         this.toastStartMs = System.currentTimeMillis();
     }
 
-    /** @return {@code true} if the click was consumed (hit a button or was inside the menu). */
+    /**
+     * @return {@code true} if the click was consumed (hit a button or was inside the menu).
+     */
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!isOpen()) return false;
 
@@ -140,16 +160,16 @@ public final class ChatContextMenu {
         return false;
     }
 
-    // -----------------------------------------------------------------
-    // Layout
-    // -----------------------------------------------------------------
-
     private void buildButtons() {
         buttons.clear();
         for (int i = 0; i < actions.size(); i++) {
             buttons.add(new ButtonLayout(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT));
         }
     }
+
+    // -----------------------------------------------------------------
+    // Drawing
+    // -----------------------------------------------------------------
 
     private void layoutMenu(int screenX, int screenY, int screenWidth, int screenHeight) {
         menuWidth = BUTTON_WIDTH + PADDING * 2;
@@ -175,10 +195,6 @@ public final class ChatContextMenu {
         showToast(action.toastLabel(), menuX, menuY - BUTTON_HEIGHT);
     }
 
-    // -----------------------------------------------------------------
-    // Drawing
-    // -----------------------------------------------------------------
-
     private void drawFrame(GuiGraphicsExtractor graphics) {
         graphics.fill(menuX - 1, menuY - 1, menuX + menuWidth + 1, menuY + menuHeight + 1, BORDER_COLOR);
         graphics.fill(menuX, menuY, menuX + menuWidth, menuY + menuHeight, BACKGROUND_COLOR);
@@ -197,6 +213,10 @@ public final class ChatContextMenu {
         int textY = btn.y + (btn.height - font.lineHeight) / 2 + 1;
         graphics.text(font, label, textX, textY, textColor, false);
     }
+
+    // -----------------------------------------------------------------
+    // Default action helpers
+    // -----------------------------------------------------------------
 
     private void drawHoveredTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         for (int i = 0; i < buttons.size(); i++) {
@@ -241,25 +261,10 @@ public final class ChatContextMenu {
                 ARGB.color(a, 0x55, 0xFF, 0x55), false);
     }
 
-    // -----------------------------------------------------------------
-    // Default action helpers
-    // -----------------------------------------------------------------
-
-    private static void copyToClipboard(String text) {
-        Minecraft.getInstance().keyboardHandler.setClipboard(text);
-    }
-
-    private static void deleteMessage(GuiMessage message) {
-        ChatAccess access = (ChatAccess) Minecraft.getInstance().gui.getChat();
-        if (access.ec$getAllMessages().remove(message)) {
-            access.ec$refreshMessages();
-        }
-    }
-
-    private static void setHighlightedMessage(@Nullable GuiMessage message) {
-        Minecraft mc = Minecraft.getInstance();
-        ChatAccess access = (ChatAccess) mc.gui.getChat();
-        access.ec$getLineTracker().setSelectedMessage(message);
+    /**
+     * A single entry in the menu: label, optional tooltip, action, and the toast shown on success.
+     */
+    public record MenuAction(String label, @Nullable String tooltip, Consumer<GuiMessage> handler, String toastLabel) {
     }
 
     // -----------------------------------------------------------------

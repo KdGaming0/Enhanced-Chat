@@ -55,6 +55,6 @@ public interface CustomChatRenderer {
             return kind == Kind.ENABLED;
         }
 
-        public enum Kind { ENABLED, DISABLED }
+        public enum Kind {ENABLED, DISABLED}
     }
 }
