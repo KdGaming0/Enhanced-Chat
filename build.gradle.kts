@@ -9,10 +9,7 @@ base.archivesName = property("mod.id") as String
 
 val requiredJava: JavaVersion = when {
     sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25
-    sc.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
-    sc.current.parsed >= "1.18" -> JavaVersion.VERSION_17
-    sc.current.parsed >= "1.17" -> JavaVersion.VERSION_16
-    else -> JavaVersion.VERSION_1_8
+    else -> JavaVersion.VERSION_25
 }
 
 // This can be used for publishing on Modrinth and Curseforge
@@ -22,37 +19,72 @@ val compatibleVersions: List<String> = sc.properties.rawOrNull("mod", "mc_releas
 repositories {
     /**
      * Restricts dependency search of the given [groups] to the [maven URL][url],
-     * improving the setup speed.
+     * improving setup speed.
      */
     fun strictMaven(url: String, alias: String, vararg groups: String) = exclusiveContent {
-        forRepository { maven(url) { name = alias } }
-        filter { groups.forEach(::includeGroup) }
+        forRepository {
+            maven(url) {
+                name = alias
+            }
+        }
+        filter {
+            groups.forEach(::includeGroup)
+        }
     }
-    strictMaven("https://www.cursemaven.com", "CurseForge", "curse.maven")
-    strictMaven("https://api.modrinth.com/maven", "Modrinth", "maven.modrinth")
+
+    strictMaven(
+        "https://api.modrinth.com/maven",
+        "Modrinth",
+        "maven.modrinth"
+    )
+
+    maven {
+        url = uri("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = uri("https://maven.azureaaron.net/releases")
+            }
+        }
+        filter {
+            includeGroup("net.azureaaron")
+        }
+    }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Cassian's Maven"
+                url = uri("https://maven.cassian.cc")
+            }
+        }
+        filter {
+            includeGroupAndSubgroups("cc.cassian")
+        }
+    }
 }
 
 dependencies {
-    /**
-     * Fetches only the required Fabric API modules to not waste time downloading all of them for each version.
-     * @see <a href="https://github.com/FabricMC/fabric">List of Fabric API modules</a>
-     */
-    fun fapi(vararg modules: String) {
-        for (it in modules) modImplementation(fabricApi.module(it, sc.properties["deps.fabric_api"]))
-    }
-
     minecraft("com.mojang:minecraft:${sc.current.version}")
-    // Applies Mojang Mappings on obfuscated versions
-    loomx.applyMojangMappings()
-
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+
+    modImplementation("maven.modrinth:midnightlib:${property("deps.midnightlib_version")}")
+    include("maven.modrinth:midnightlib:${property("deps.midnightlib_version")}")
+
+    modImplementation("net.azureaaron:hm-api:${property("deps.hm_api_version")}")
+    include("net.azureaaron:hm-api:${property("deps.hm_api_version")}")
+
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
+    modRuntimeOnly("maven.modrinth:modmenu:${property("deps.modmenu_version")}")
 }
 
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
     accessWidenerPath = sc.process(
-        rootProject.file("src/main/resources/template.ct"),
+        rootProject.file("src/main/resources/enhancedchat.ct"),
         "build/processed.ct"
     )
 
@@ -90,6 +122,7 @@ tasks {
             register("name", "mod.name")
             register("version", "mod.version")
             register("minecraft", "mod.mc_compat")
+            register("loader_version", "deps.fabric_loader")
         }
 
         filesMatching("fabric.mod.json") { expand(props) }

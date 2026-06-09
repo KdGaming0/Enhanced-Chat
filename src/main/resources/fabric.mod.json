@@ -3,28 +3,30 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "To be added later",
   "authors": [
-    "Me!"
+    "Kd_Gaming1"
   ],
   "contact": {
-    "homepage": "https://stonecutter.kikugie.dev/",
-    "sources": "https://codeberg.org/stonecutter/template-fabric"
+    "homepage": "https://modrinth.com/mod/enhanced-storage",
+    "sources": "https://github.com/kdgaming0/Enhanced-Storage"
   },
-  "license": "CC0-1.0",
-  "icon": "assets/template/icon.png",
-  "environment": "*",
+  "license": "GPL-3.0-only",
+  "icon": "assets/enhanced_chat/icon.png",
+  "environment": "client",
   "entrypoints": {
-    "main": [
-      "com.example.TemplateMod"
+    "client": [
+      "com.github.kdgaming0.enhancedchat.EnhancedChat"
     ]
   },
   "mixins": [
-    "template.mixins.json"
+    "enhancedchat.mixins.json"
   ],
-  "accessWidener": "template.ct",
+  "accessWidener": "enhancedchat.ct",
   "depends": {
-    "fabricloader": ">=0.17",
-    "minecraft": "${minecraft}"
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft}",
+    "fabric-api": "*",
+    "midnightlib": ">=1.9.3"
   }
 }
