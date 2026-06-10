@@ -2,7 +2,7 @@
 mod.id = "enhanced_chat"
 mod.name = "Enhanced Chat"
 mod.group = "com.github.kdgaming0"
-mod.version = "0.1.0"
+mod.version = "0.2.0"
 
 deps.fabric_loader = "0.19.2"
 loomx.loom_version = "1.16-SNAPSHOT"

@@ -40,65 +40,50 @@ public abstract class ChatRenderingMixin implements ChatAccess {
 
     @Unique
     private final ChatLineTracker ec$lineTracker = new ChatLineTracker();
-    @Shadow
-    @Final
-    private List<GuiMessage.Line> trimmedMessages;
-    @Shadow
-    @Final
-    private List<GuiMessage> allMessages;
-    @Shadow
-    private int chatScrollbarPos;
-    @Shadow
-    private boolean newMessageSinceScroll;
+    @Shadow @Final private List<GuiMessage.Line> trimmedMessages;
+    @Shadow @Final private List<GuiMessage>       allMessages;
+    @Shadow private int     chatScrollbarPos;
+    @Shadow private boolean newMessageSinceScroll;
+
     // Proxy reuse cache — avoids per-frame allocation when delegate/font/line-spacing are stable.
-    @Unique
-    private ChatGraphicsAccessProxy ec$renderProxy;
-    @Unique
-    private ChatComponent.ChatGraphicsAccess ec$lastDelegate;
-    @Unique
-    private Font ec$lastProxyFont;
-    @Unique
-    private double ec$lastLineSpacing = -1.0;
+    @Unique private ChatGraphicsAccessProxy      ec$renderProxy;
+    @Unique private ChatComponent.ChatGraphicsAccess ec$lastDelegate;
+    @Unique private Font                         ec$lastProxyFont;
+    @Unique private double                       ec$lastLineSpacing = -1.0;
 
-    @Shadow
-    private int getWidth() {
-        throw new AssertionError();
-    }
-
-    @Shadow
-    private double getScale() {
-        throw new AssertionError();
-    }
-
-    @Shadow
-    private void refreshTrimmedMessages() {
-    }
+    @Shadow private int    getWidth() { throw new AssertionError(); }
+    @Shadow private double getScale() { throw new AssertionError(); }
+    @Shadow private void   refreshTrimmedMessages() {}
 
     // ---------- ChatAccess ----------
 
-    @Override
-    public List<GuiMessage> ec$getAllMessages() {
-        return allMessages;
-    }
+    @Override public List<GuiMessage>      ec$getAllMessages()     { return allMessages; }
+    @Override public List<GuiMessage.Line> ec$getTrimmedMessages() { return trimmedMessages; }
+    @Override public int                   ec$getChatScrollbarPos(){ return chatScrollbarPos; }
+    @Override public int                   ec$getScaledWidth()     { return Mth.floor(getWidth() / getScale()); }
+    @Override public ChatLineTracker       ec$getLineTracker()     { return ec$lineTracker; }
 
-    @Override
-    public List<GuiMessage.Line> ec$getTrimmedMessages() {
-        return trimmedMessages;
-    }
-
-    @Override
-    public int ec$getChatScrollbarPos() {
-        return chatScrollbarPos;
-    }
-
-    @Override
-    public int ec$getScaledWidth() {
-        return Mth.floor(getWidth() / getScale());
-    }
-
-    @Override
-    public ChatLineTracker ec$getLineTracker() {
-        return ec$lineTracker;
+    /**
+     * Clamps {@code chatScrollbarPos} to the valid range and snaps the "new message" indicator
+     * off when at the bottom.
+     *
+     * <p>Early-exits when already at the bottom (the common case) to skip the
+     * {@code getLinesPerPage()} call, which reads options and performs division.
+     */
+    @Unique
+    private void ec$clampScroll() {
+        if (this.chatScrollbarPos <= 0) {
+            this.chatScrollbarPos = 0;
+            this.newMessageSinceScroll = false;
+            return;
+        }
+        int linesPerPage = ((ChatComponent) (Object) this).getLinesPerPage();
+        int maxScroll    = Math.max(0, this.trimmedMessages.size() - linesPerPage);
+        this.chatScrollbarPos = Math.min(this.chatScrollbarPos, maxScroll);
+        if (this.chatScrollbarPos <= 0) {
+            this.chatScrollbarPos = 0;
+            this.newMessageSinceScroll = false;
+        }
     }
 
     /**
@@ -107,37 +92,27 @@ public abstract class ChatRenderingMixin implements ChatAccess {
      * deletion, tab/search filters) from force-snapping the chat back to the bottom.
      */
     @Unique
-    private void ec$clampScroll() {
-        int linesPerPage = ((ChatComponent) (Object) this).getLinesPerPage();
-        int maxScroll = Math.max(0, this.trimmedMessages.size() - linesPerPage);
-        this.chatScrollbarPos = Math.min(this.chatScrollbarPos, maxScroll);
-        if (this.chatScrollbarPos <= 0) {
-            this.chatScrollbarPos = 0;
-            this.newMessageSinceScroll = false;
-        }
+    private void ec$clampScrollPost() {
+        ec$clampScroll();
     }
 
     @Override
     public void ec$refreshMessages() {
-        // Ensure UI rebuilds only happen on the main thread to prevent concurrent
-        // modification exceptions during render frames.
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (!mc.isSameThread()) {
             mc.execute(this::ec$refreshMessages);
             return;
         }
 
-        int savedScroll = this.chatScrollbarPos;
+        int     savedScroll     = this.chatScrollbarPos;
         boolean savedNewMessage = this.newMessageSinceScroll;
 
-        // Pin to bottom while the queue is temporarily empty/small so that
-        // addMessageToDisplayQueue's internal scrollChat(1) calls become no-ops.
-        this.chatScrollbarPos = 0;
+        this.chatScrollbarPos    = 0;
         this.newMessageSinceScroll = false;
 
         refreshTrimmedMessages();
 
-        this.chatScrollbarPos = savedScroll;
+        this.chatScrollbarPos    = savedScroll;
         this.newMessageSinceScroll = savedNewMessage;
         ec$clampScroll();
     }
@@ -163,10 +138,10 @@ public abstract class ChatRenderingMixin implements ChatAccess {
         ChatGraphicsAccessProxy proxy = ec$renderProxy;
         if (proxy == null || ec$lastDelegate != access || ec$lastProxyFont != font
                 || ec$lastLineSpacing != lineSpacing) {
-            proxy = new ChatGraphicsAccessProxy(access, this, graphics, font);
-            ec$renderProxy = proxy;
-            ec$lastDelegate = access;
-            ec$lastProxyFont = font;
+            proxy              = new ChatGraphicsAccessProxy(access, this, graphics, font);
+            ec$renderProxy     = proxy;
+            ec$lastDelegate    = access;
+            ec$lastProxyFont   = font;
             ec$lastLineSpacing = lineSpacing;
         } else {
             proxy.prepareForFrame(access, graphics, font);
@@ -215,20 +190,18 @@ public abstract class ChatRenderingMixin implements ChatAccess {
             Operation<List<FormattedCharSequence>> original,
             @Share("ec_renderers") LocalRef<List<CustomChatRenderer>> renderersRef) {
 
-        boolean centerEnabled = EnhancedChatConfig.centerHypixelText;
+        boolean centerEnabled     = EnhancedChatConfig.centerHypixelText;
         boolean separatorsEnabled = EnhancedChatConfig.smoothSeparators;
 
-        // True vanilla path when no rendering feature is active or we're off Hypixel.
         if (!com.github.kdgaming0.enhancedchat.util.HypixelLocationState.isOnHypixel()
                 || (!centerEnabled && !separatorsEnabled)) {
             renderersRef.set(null);
             return original.call(instance, font, width);
         }
 
-        // Step 1: bypass initial word-wrapping to inspect raw \n-separated lines.
+        // Bypass word-wrapping to inspect raw \n-separated lines first.
         List<FormattedCharSequence> rawLines = original.call(instance, font, Integer.MAX_VALUE);
 
-        // Step 2: classify and re-wrap, producing per-line renderers.
         ChatLineProcessor.Result result = ChatLineProcessor.process(
                 rawLines, font, width, centerEnabled, separatorsEnabled);
 
@@ -278,7 +251,7 @@ public abstract class ChatRenderingMixin implements ChatAccess {
 
     @Inject(method = "clearMessages", at = @At("TAIL"))
     private void ec$clampScrollAfterClear(boolean clearHistory, CallbackInfo ci) {
-        this.chatScrollbarPos = 0;
+        this.chatScrollbarPos    = 0;
         this.newMessageSinceScroll = false;
     }
 
