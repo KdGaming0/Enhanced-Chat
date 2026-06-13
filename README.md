@@ -27,7 +27,7 @@ Detects space-padded centered messages from Hypixel and actually centers them in
 Replaces dash, block, and line separator characters with clean horizontal pixel lines. Supports both full separators and separators with centered text.
 
 ### Chat Tabs
-Adds clickable channel tabs above the chat input — **All, User, Party, Guild, PM, and Co-op** — so you can filter chat by message type. Separator lines automatically group with their surrounding tick-block so banner borders don't disappear when switching tabs.
+Adds clickable channel tabs above the chat input — **All, User, Party, Guild, PM, and Co-op** — so you can filter chat by message type. Button textures were made by [Bentcheesee](https://modrinth.com/user/Bentcheesee). Massive thanks!
 
 ### Chat Context Menu
 Right-click any chat message to open a menu with options to **Copy Text**, **Copy Message Body**, **Copy with &Codes**, or **Delete** the message. Prefer instant copying? Enable **Right-Click to Copy** in config to skip the menu entirely.
