@@ -1,3 +1,10 @@
+/*
+ * <p>Adapted from the {@code ChatScreenMixin} in Ezzenix's ChatAnimation
+ * (<a href="https://github.com/Ezzenix/ChatAnimation">github.com/Ezzenix/ChatAnimation</a>,
+ * licensed CC0-1.0): the wrap-operation injection points and matrix-translate approach are
+ * carried over from that mixin, with the easing function and field naming reworked here.
+ */
+
 package com.github.kdgaming0.enhancedchat.mixin.chat;
 
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
@@ -15,8 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Slides the chat input bar up when the chat screen opens. Cubic ease-out over a duration
  * capped at {@link #MAX_DURATION_MS}.
- *
- * <p>Inspired by Ezzenix's ChatAnimation (CC-BY-NC-SA 4.0); this is an original implementation.
  */
 @Mixin(ChatScreen.class)
 public class ChatScreenAnimationMixin {

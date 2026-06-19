@@ -1,3 +1,11 @@
+/*
+ * <p>Adapted from the {@code ChatComponentMixin} in Ezzenix's ChatAnimation
+ * (<a href="https://github.com/Ezzenix/ChatAnimation">github.com/Ezzenix/ChatAnimation</a>,
+ * licensed CC0-1.0): the wrap-operation injection point and matrix-translate approach are
+ * carried over from that mixin, with the easing function, field naming, and the
+ * displayed-lines tracking reworked here.
+ */
+
 package com.github.kdgaming0.enhancedchat.mixin.chat;
 
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
@@ -25,8 +33,6 @@ import java.util.List;
  *
  * <p>Only triggers when the chat is scrolled to the bottom and the incoming message actually
  * added visible lines (filtered-out messages don't animate).
- *
- * <p>Inspired by Ezzenix's ChatAnimation (CC-BY-NC-SA 4.0); this is an original implementation.
  */
 @Mixin(ChatComponent.class)
 public abstract class ChatAnimationMixin {

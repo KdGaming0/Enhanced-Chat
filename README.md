@@ -89,6 +89,7 @@ Enhanced-Chat includes ideas and implementation inspiration from other chat-focu
 
 - [hypixel-chat-tabs](https://github.com/YellowBirb/hypixel-chat-tabs) by YellowBirb
 - [compact-chat](https://github.com/caoimhebyrne/compact-chat) by caoimhebyrne
-- [BetterHypixelChat](https://github.com/viciscat/BetterHypixelChat) by viciscat
+- [BetterHypixelChat](https://github.com/viciscat/BetterHypixelChat) by viciscat — general inspiration, plus the separator line's shadow-rendering technique in `SeparatorRenderer` is directly adapted from this mod's `SeparationLine`
+- [ChatAnimation](https://github.com/Ezzenix/ChatAnimation) by Ezzenix — the chat slide-up and input bar animations are adapted from this mod's mixins
 
 Big thanks to the original authors of these mods for giving me a foundation to work from and add to!

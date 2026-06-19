@@ -1,3 +1,10 @@
+/*
+ * <p>The vertical-centering formula and the offset-shadow-rectangle technique (a dimmer
+ * fill drawn 1px behind the main line at {@link #SHADOW_FACTOR} opacity) are adapted from
+ * {@code SeparationLine} in viciscat's BetterHypixelChat
+ * (<a href="https://github.com/viciscat/BetterHypixelChat">github.com/viciscat/BetterHypixelChat</a>).
+ */
+
 package com.github.kdgaming0.enhancedchat.chat.render;
 
 import net.minecraft.client.gui.Font;
