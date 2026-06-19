@@ -1,3 +1,10 @@
+/**
+ * Duplicate chat-message compaction for Hypixel and general chat.
+ * <p>
+ * This feature was inspired by similar duplicate-removal behavior in
+ * https://github.com/caoimhebyrne/compact-chat.
+ */
+
 package com.github.kdgaming0.enhancedchat.chat.compact;
 
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;

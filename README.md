@@ -83,10 +83,12 @@ If you'd like to support continued development, you can do so on **Ko-fi** — e
 
 [**Support on Ko-fi →**](https://ko-fi.com/kdgaming1)
 
----
+## Credits & Attribution
 
-<div align="center">
+Enhanced-Chat includes ideas and implementation inspiration from other chat-focused mods:
 
-**Made for the SkyBlock community.**
+- [hypixel-chat-tabs](https://github.com/YellowBirb/hypixel-chat-tabs) by YellowBirb
+- [compact-chat](https://github.com/caoimhebyrne/compact-chat) by caoimhebyrne
+- [BetterHypixelChat](https://github.com/viciscat/BetterHypixelChat) by viciscat
 
-</div>
+Big thanks to the original authors of these mods for giving me a foundation to work from and add to!

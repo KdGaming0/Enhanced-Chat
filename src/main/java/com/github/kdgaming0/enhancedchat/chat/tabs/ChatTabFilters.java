@@ -1,3 +1,10 @@
+/**
+ * Hypixel chat channel matching rules.
+ *
+ * Some of these message patterns were inspired by similar filtering logic in
+ * https://github.com/YellowBirb/hypixel-chat-tabs.
+ */
+
 package com.github.kdgaming0.enhancedchat.chat.tabs;
 
 import java.util.function.Predicate;
