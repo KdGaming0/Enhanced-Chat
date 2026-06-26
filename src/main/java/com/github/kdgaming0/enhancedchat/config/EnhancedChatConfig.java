@@ -28,12 +28,6 @@ public class EnhancedChatConfig extends MidnightConfig {
     public static int compactTimeWindowMinutes = 10;
 
     @Entry(category = CHAT_ENHANCEMENTS)
-    public static boolean centerHypixelText = true;
-
-    @Entry(category = CHAT_ENHANCEMENTS)
-    public static boolean smoothSeparators = true;
-
-    @Entry(category = CHAT_ENHANCEMENTS)
     public static boolean enableChatTabs = true;
 
     @Entry(category = CHAT_ENHANCEMENTS)

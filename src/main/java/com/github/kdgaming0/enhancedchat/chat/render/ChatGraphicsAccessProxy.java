@@ -2,7 +2,6 @@ package com.github.kdgaming0.enhancedchat.chat.render;
 
 import com.github.kdgaming0.enhancedchat.chat.ChatLineTracker;
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
@@ -16,23 +15,21 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Intercepts vanilla chat rendering to dispatch to {@link CustomChatRenderer}s and to draw the
- * selection outline around the currently targeted message.
+ * Intercepts vanilla chat rendering to draw the selection outline around the currently
+ * targeted message.
  *
- * <p>All parent-message and renderer lookups are O(1) via {@link ChatLineTracker}; the proxy
- * itself does no searching. Line spacing is sampled once per render pass to avoid repeated
- * option reads in the per-line hot path.
+ * <p>All parent-message lookups are O(1) via {@link ChatLineTracker}; the proxy itself does
+ * no searching. Line spacing is sampled once per render pass to avoid repeated option reads
+ * in the per-line hot path.
  */
 public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess {
 
     private static final float OUTLINE_ALPHA_FACTOR = 0.35f;
     private static final int OUTLINE_LEFT_INSET = -4;
     private static final int OUTLINE_RIGHT_INSET = 8;
-    private static final int OFFSCREEN_Y = -10000;
     private final ChatAccess chatAccess;
     private ChatComponent.ChatGraphicsAccess delegate;
     private @Nullable GuiGraphicsExtractor graphics;
-    private Font font;
 
     // Sampled once per frame — chat line-spacing doesn't change during a render pass.
     private int entryHeight;
@@ -47,10 +44,9 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
     public ChatGraphicsAccessProxy(
             ChatComponent.ChatGraphicsAccess delegate,
             ChatAccess chatAccess,
-            @Nullable GuiGraphicsExtractor graphics,
-            Font font) {
+            @Nullable GuiGraphicsExtractor graphics) {
         this.chatAccess = chatAccess;
-        prepareForFrame(delegate, graphics, font);
+        prepareForFrame(delegate, graphics);
     }
 
     /**
@@ -58,10 +54,9 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
      * Call once before each chat render when reusing a proxy instance.
      */
     public void prepareForFrame(ChatComponent.ChatGraphicsAccess delegate,
-                                @Nullable GuiGraphicsExtractor graphics, Font font) {
+                                @Nullable GuiGraphicsExtractor graphics) {
         this.delegate = delegate;
         this.graphics = graphics;
-        this.font = font;
         this.outlineActive = false;
         this.outlineMinY = Integer.MAX_VALUE;
         this.outlineMaxY = Integer.MIN_VALUE;
@@ -85,11 +80,8 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
     @Override
     public boolean handleMessage(int textTop, float opacity, @NonNull FormattedCharSequence message) {
         ChatLineTracker tracker = chatAccess.ec$getLineTracker();
-        CustomChatRenderer renderer = tracker.rendererFor(message);
 
-        boolean hovered = renderer == null
-                ? delegate.handleMessage(textTop, opacity, message)
-                : dispatchCustom(renderer, message, textTop, opacity);
+        boolean hovered = delegate.handleMessage(textTop, opacity, message);
 
         GuiMessage selected = tracker.getSelectedMessage();
         if (selected != null) {
@@ -142,44 +134,6 @@ public class ChatGraphicsAccessProxy implements ChatComponent.ChatGraphicsAccess
     // -----------------------------------------------------------------
     // Internal
     // -----------------------------------------------------------------
-
-    private boolean dispatchCustom(
-            CustomChatRenderer renderer, FormattedCharSequence message, int textTop, float opacity) {
-
-        int scaledWidth = chatAccess.ec$getScaledWidth();
-        if (graphics != null) {
-            renderer.render(graphics, font, message, 0, textTop, scaledWidth, opacity);
-        }
-
-        CustomChatRenderer.HitTest hit = renderer.hitTest(font, message, 0, scaledWidth);
-        if (!hit.isEnabled()) return false;
-
-        return hiddenHitTest(message, textTop, opacity, hit.offsetX());
-    }
-
-    /**
-     * Runs the vanilla hit-test with the visible delegate draw shifted far off-screen (text
-     * was already drawn by the custom renderer). If {@code offsetX} is non-zero the hit-test
-     * is translated to match the custom draw's actual position.
-     */
-    private boolean hiddenHitTest(FormattedCharSequence message, int textTop, float opacity, int offsetX) {
-        if (offsetX != 0) {
-            delegate.updatePose(pose -> pose.translate(offsetX, 0));
-        }
-        if (graphics != null) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(0, OFFSCREEN_Y);
-        }
-        try {
-            return delegate.handleMessage(textTop, opacity, message);
-        } finally {
-            if (graphics != null) graphics.pose().popMatrix();
-            if (offsetX != 0) {
-                int reverse = -offsetX;
-                delegate.updatePose(pose -> pose.translate(reverse, 0));
-            }
-        }
-    }
 
     private void maybeAccumulateOutline(
             @Nullable GuiMessage parent, @Nullable GuiMessage selected,

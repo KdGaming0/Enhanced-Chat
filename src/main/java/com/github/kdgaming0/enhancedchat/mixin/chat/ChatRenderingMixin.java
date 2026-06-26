@@ -3,19 +3,13 @@ package com.github.kdgaming0.enhancedchat.mixin.chat;
 import com.github.kdgaming0.enhancedchat.chat.ChatLineTracker;
 import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
 import com.github.kdgaming0.enhancedchat.chat.render.ChatGraphicsAccessProxy;
-import com.github.kdgaming0.enhancedchat.chat.render.ChatLineProcessor;
-import com.github.kdgaming0.enhancedchat.chat.render.CustomChatRenderer;
-import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -138,13 +132,13 @@ public abstract class ChatRenderingMixin implements ChatAccess {
         ChatGraphicsAccessProxy proxy = ec$renderProxy;
         if (proxy == null || ec$lastDelegate != access || ec$lastProxyFont != font
                 || ec$lastLineSpacing != lineSpacing) {
-            proxy              = new ChatGraphicsAccessProxy(access, this, graphics, font);
+            proxy              = new ChatGraphicsAccessProxy(access, this, graphics);
             ec$renderProxy     = proxy;
             ec$lastDelegate    = access;
             ec$lastProxyFont   = font;
             ec$lastLineSpacing = lineSpacing;
         } else {
-            proxy.prepareForFrame(access, graphics, font);
+            proxy.prepareForFrame(access, graphics);
         }
         original.call(instance, proxy, screenHeight, ticks, displayMode);
         proxy.finishOutline();
@@ -163,8 +157,7 @@ public abstract class ChatRenderingMixin implements ChatAccess {
             int screenHeight, int ticks, ChatComponent.DisplayMode displayMode,
             Operation<Void> original) {
 
-        ChatGraphicsAccessProxy proxy = new ChatGraphicsAccessProxy(
-                access, this, null, net.minecraft.client.Minecraft.getInstance().font);
+        ChatGraphicsAccessProxy proxy = new ChatGraphicsAccessProxy(access, this, null);
         original.call(instance, proxy, screenHeight, ticks, displayMode);
     }
 
@@ -180,38 +173,9 @@ public abstract class ChatRenderingMixin implements ChatAccess {
         ec$lineTracker.finishAddingLines();
     }
 
-    @WrapOperation(
-            method = "addMessageToDisplayQueue",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/multiplayer/chat/GuiMessage;splitLines(Lnet/minecraft/client/gui/Font;I)Ljava/util/List;"))
-    private List<FormattedCharSequence> ec$processLines(
-            GuiMessage instance, Font font, int width,
-            Operation<List<FormattedCharSequence>> original,
-            @Share("ec_renderers") LocalRef<List<CustomChatRenderer>> renderersRef) {
-
-        boolean centerEnabled     = EnhancedChatConfig.centerHypixelText;
-        boolean separatorsEnabled = EnhancedChatConfig.smoothSeparators;
-
-        if (!com.github.kdgaming0.enhancedchat.util.HypixelLocationState.isOnHypixel()
-                || (!centerEnabled && !separatorsEnabled)) {
-            renderersRef.set(null);
-            return original.call(instance, font, width);
-        }
-
-        // Bypass word-wrapping to inspect raw \n-separated lines first.
-        List<FormattedCharSequence> rawLines = original.call(instance, font, Integer.MAX_VALUE);
-
-        ChatLineProcessor.Result result = ChatLineProcessor.process(
-                rawLines, font, width, centerEnabled, separatorsEnabled);
-
-        renderersRef.set(result.renderers());
-        return result.lines();
-    }
-
     /**
-     * Fires immediately after each {@code trimmedMessages.addFirst(...)}. The {@code i} local
-     * (ordinal=1) is the line index within the current message.
+     * Fires immediately after each {@code trimmedMessages.addFirst(...)}, associating the
+     * freshly-added display line with its parent message.
      */
     @Inject(
             method = "addMessageToDisplayQueue",
@@ -219,19 +183,8 @@ public abstract class ChatRenderingMixin implements ChatAccess {
                     value = "INVOKE",
                     target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V",
                     shift = At.Shift.AFTER))
-    private void ec$registerAddedLine(
-            CallbackInfo ci,
-            @Share("ec_renderers") LocalRef<List<CustomChatRenderer>> renderersRef,
-            @Local(ordinal = 1) int lineIndex) {
-
-        GuiMessage.Line added = trimmedMessages.getFirst();
-
-        List<CustomChatRenderer> renderers = renderersRef.get();
-        CustomChatRenderer renderer = (renderers != null && lineIndex < renderers.size())
-                ? renderers.get(lineIndex)
-                : null;
-
-        ec$lineTracker.recordLine(added, renderer);
+    private void ec$registerAddedLine(CallbackInfo ci) {
+        ec$lineTracker.recordLine(trimmedMessages.getFirst());
     }
 
     @WrapOperation(

@@ -1,6 +1,5 @@
 package com.github.kdgaming0.enhancedchat.chat;
 
-import com.github.kdgaming0.enhancedchat.chat.render.CustomChatRenderer;
 import com.github.kdgaming0.enhancedchat.chat.search.ChatSearchController;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
@@ -16,7 +15,6 @@ import java.util.Map;
  * <p>The map is keyed on the {@link FormattedCharSequence} stored inside each
  * {@link GuiMessage.Line}, which is unique per displayed line. This gives O(1) lookups for:
  * <ul>
- *   <li>hover/click hit-testing (content → renderer),</li>
  *   <li>copy and delete resolution (content/line → parent message),</li>
  *   <li>selection outline rendering (parent identity comparison).</li>
  * </ul>
@@ -41,11 +39,11 @@ public final class ChatLineTracker {
     }
 
     /**
-     * Associates a freshly-added display line with its parent message and optional renderer.
+     * Associates a freshly-added display line with its parent message.
      */
-    public void recordLine(GuiMessage.Line line, @Nullable CustomChatRenderer renderer) {
+    public void recordLine(GuiMessage.Line line) {
         if (pendingParent == null) return;
-        byContent.put(line.content(), new Entry(pendingParent, renderer));
+        byContent.put(line.content(), new Entry(pendingParent));
     }
 
     public void evictLine(GuiMessage.Line line) {
@@ -68,11 +66,6 @@ public final class ChatLineTracker {
     public void clearLineMappings() {
         byContent.clear();
         searchableText.clear();
-    }
-
-    public @Nullable CustomChatRenderer rendererFor(FormattedCharSequence content) {
-        Entry entry = byContent.get(content);
-        return entry == null ? null : entry.renderer;
     }
 
     public @Nullable GuiMessage parentFor(FormattedCharSequence content) {
@@ -101,6 +94,6 @@ public final class ChatLineTracker {
         return ChatSearchController.toSearchable(message.content());
     }
 
-    private record Entry(GuiMessage parent, @Nullable CustomChatRenderer renderer) {
+    private record Entry(GuiMessage parent) {
     }
 }

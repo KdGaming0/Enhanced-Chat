@@ -20,12 +20,6 @@
 ### Compact Duplicate Messages
 Merges repeated chat messages into a single line with an occurrence counter (×N). Choose between consecutive-only, time-windowed, or unlimited compaction. Optionally skip messages with click events so interactable links stay intact.
 
-### Centered Hypixel Text
-Detects space-padded centered messages from Hypixel and actually centers them in the chat window — no more lopsided banners or profile views.
-
-### Smooth Separators
-Replaces dash, block, and line separator characters with clean horizontal pixel lines. Supports both full separators and separators with centered text.
-
 ### Chat Tabs
 Adds clickable channel tabs above the chat input — **All, User, Party, Guild, PM, and Co-op** — so you can filter chat by message type. Button textures were made by [Bentcheesee](https://modrinth.com/user/Bentcheesee). Massive thanks!
 
@@ -51,8 +45,6 @@ Open the config via **Mod Menu → Enhanced Chat → Config**. Enhanced Chat use
 |--------|-------------|
 | Extended Chat History | Enable and set the history size (100–2048). |
 | Compact Duplicate Messages | Enable compaction, choose mode, and set time window. |
-| Center Hypixel Text | Properly center space-padded Hypixel messages. |
-| Smooth Separators | Replace separator characters with clean lines. |
 | Enable Chat Tabs | Show channel filter tabs above chat input. |
 | Enable Chat Context Menu | Right-click menu for copy/delete actions. |
 | Right-Click to Copy | Instantly copy raw text without opening the menu. |
@@ -89,7 +81,8 @@ Enhanced-Chat includes ideas and implementation inspiration from other chat-focu
 
 - [hypixel-chat-tabs](https://github.com/YellowBirb/hypixel-chat-tabs) by YellowBirb
 - [compact-chat](https://github.com/caoimhebyrne/compact-chat) by caoimhebyrne
-- [BetterHypixelChat](https://github.com/viciscat/BetterHypixelChat) by viciscat — general inspiration, plus the separator line's shadow-rendering technique in `SeparatorRenderer` is directly adapted from this mod's `SeparationLine`
 - [ChatAnimation](https://github.com/Ezzenix/ChatAnimation) by Ezzenix — the chat slide-up and input bar animations are adapted from this mod's mixins
 
 Big thanks to the original authors of these mods for giving me a foundation to work from and add to!
+
+> AI tools were extensively used during the creation of this project.

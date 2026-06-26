@@ -2,10 +2,10 @@
 mod.id = "enhanced_chat"
 mod.name = "Enhanced Chat"
 mod.group = "com.github.kdgaming0"
-mod.version = "0.2.0"
+mod.version = "0.3.0"
 
-deps.fabric_loader = "0.19.2"
-loomx.loom_version = "1.16-SNAPSHOT"
+deps.fabric_loader = "0.19.3"
+loomx.loom_version = "1.17-SNAPSHOT"
 
 ["26.1"]
 mod.mc_compat = "~26.1"
