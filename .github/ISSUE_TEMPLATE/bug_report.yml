@@ -1,0 +1,106 @@
+name: Bug Report - Enhanced Chat
+description: Report a bug or issue with the Enhanced Chat mod
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+assignees: ["KdGaming0"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for reporting a bug!
+        Please fill out the following information to help diagnose and fix the issue with Enhanced Chat.
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Enhanced Chat Version
+      description: What version of Enhanced Chat are you using?
+      placeholder: "e.g., 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you playing?
+      placeholder: "e.g., 1.21.11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: What happened? Describe the bug clearly and concisely.
+      placeholder: "The island chest doesn't update when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      value: |
+        1.
+        2.
+        3.
+        4.
+      placeholder: "1. Join an island\n2. Open the collection menu\n3. Notice that..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "The collection should update when..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: feature-affected
+    attributes:
+      label: Feature Affected
+      description: Which feature of Enhanced Chat is affected?
+      options:
+        - Chat search
+        - Chat tabs
+        - Context menu
+        - Chat history
+        - Chat animation
+        - Compact messages
+        - Configuration
+        - Other
+        - Not applicable
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-mods
+    attributes:
+      label: Other Mods / Plugins Installed
+      description: List any other mods or plugins you have installed that might be relevant
+      placeholder: "Sodium, Fabric API, etc."
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs/Crash Reports
+      description: If applicable, paste any relevant logs or crash reports
+      render: shell
+      placeholder: "Paste your latest.log or crash report here"
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched for existing issues before creating this one
+          required: true
+        - label: I am using the latest version of Enhanced Chat
+          required: false
+        - label: I have provided all the requested information above
+          required: true
