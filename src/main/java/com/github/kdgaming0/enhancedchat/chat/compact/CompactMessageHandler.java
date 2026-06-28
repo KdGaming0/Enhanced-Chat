@@ -46,12 +46,6 @@ import java.util.Map;
  */
 public final class CompactMessageHandler {
 
-    /**
-     * Cap on distinct messages tracked simultaneously. Chosen empirically: large enough that
-     * ordinary lobby activity fits comfortably (Hypixel lobbies rarely produce more than
-     * ~100 distinct messages per minute of observation), small enough that the map stays in
-     * a few-KB regime even with long strings.
-     */
     private static final int MAX_TRACKED_MESSAGES = 512;
 
     private static final Style COUNT_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
@@ -69,6 +63,7 @@ public final class CompactMessageHandler {
                 }
             };
     private @Nullable String previousMessage;
+    private @Nullable String pendingAddKey;
 
     public CompactMessageHandler(ChatAccess chatAccess) {
         this.chatAccess = chatAccess;
@@ -126,6 +121,7 @@ public final class CompactMessageHandler {
      * original message unchanged.
      */
     public Component process(Component message) {
+        pendingAddKey = null;
         if (!EnhancedChatConfig.compactDuplicateMessages) return message;
 
         if (EnhancedChatConfig.compactIgnoreInteractable && isInteractable(message)) return message;
@@ -136,6 +132,7 @@ public final class CompactMessageHandler {
         long nowMs = System.currentTimeMillis();
         boolean isConsecutive = raw.equals(previousMessage);
         previousMessage = raw;
+        pendingAddKey = raw;
 
         Entry entry = entries.get(raw);
         if (entry == null) {
@@ -149,8 +146,27 @@ public final class CompactMessageHandler {
         }
 
         entry.count++;
-        removePreviousDuplicate(raw);
+        if (entry.lastMessage != null) {
+            removePreviousDuplicate(entry.lastMessage);
+        }
         return withCountSuffix(message, entry.count);
+    }
+
+    /**
+     * Binds the {@link GuiMessage} vanilla just added (history index 0) to the entry recorded
+     * during the matching {@link #process} call, so the next duplicate of this text can be
+     * dropped in {@link #removePreviousDuplicate} by identity instead of a full-history text scan.
+     *
+     * <p>No-op when the processed message was not tracked (feature disabled, interactable, or an
+     * auxiliary separator/blank line).
+     */
+    public void noteAddedMessage(GuiMessage added) {
+        if (pendingAddKey == null) return;
+        Entry entry = entries.get(pendingAddKey);
+        if (entry != null) {
+            entry.lastMessage = added;
+        }
+        pendingAddKey = null;
     }
 
     // -----------------------------------------------------------------
@@ -163,33 +179,40 @@ public final class CompactMessageHandler {
     }
 
     /**
-     * Removes the prior occurrence of {@code raw} and any separator/blank lines that are
+     * Removes the prior occurrence {@code target} and any separator/blank lines that are
      * directly adjacent AND share the same tick.
      */
-    private void removePreviousDuplicate(String raw) {
+    private void removePreviousDuplicate(GuiMessage target) {
         List<GuiMessage> msgs = chatAccess.ec$getAllMessages();
-        for (int i = 0; i < msgs.size(); i++) {
-            String candidate = ChatTextHelper.stripCompactSuffix(msgs.get(i).content().getString());
-            if (!candidate.equals(raw)) continue;
+        int i = identityIndexOf(msgs, target);
+        if (i < 0) return;
 
-            int anchorTick = msgs.get(i).addedTime();
-            int lower = i;
-            int upper = i;
+        int anchorTick = msgs.get(i).addedTime();
+        int lower = i;
+        int upper = i;
 
-            while (lower - 1 >= 0
-                    && msgs.get(lower - 1).addedTime() == anchorTick
-                    && isAuxiliaryLine(msgs.get(lower - 1))) {
-                lower--;
-            }
-            while (upper + 1 < msgs.size()
-                    && msgs.get(upper + 1).addedTime() == anchorTick
-                    && isAuxiliaryLine(msgs.get(upper + 1))) {
-                upper++;
-            }
-
-            msgs.subList(lower, upper + 1).clear();
-            return;
+        while (lower - 1 >= 0
+                && msgs.get(lower - 1).addedTime() == anchorTick
+                && isAuxiliaryLine(msgs.get(lower - 1))) {
+            lower--;
         }
+        while (upper + 1 < msgs.size()
+                && msgs.get(upper + 1).addedTime() == anchorTick
+                && isAuxiliaryLine(msgs.get(upper + 1))) {
+            upper++;
+        }
+
+        for (int k = lower; k <= upper; k++) {
+            chatAccess.ec$dropMessageLines(msgs.get(k));
+        }
+        msgs.subList(lower, upper + 1).clear();
+    }
+
+    private static int identityIndexOf(List<GuiMessage> msgs, GuiMessage target) {
+        for (int i = 0, n = msgs.size(); i < n; i++) {
+            if (msgs.get(i) == target) return i;
+        }
+        return -1;
     }
 
     /**
@@ -198,6 +221,11 @@ public final class CompactMessageHandler {
     private static final class Entry {
         int count;
         long firstSeenMs;
+        /**
+         * The most recent {@link GuiMessage} carrying this text, set by {@link #noteAddedMessage}
+         * after vanilla adds it. Lets {@link #removePreviousDuplicate} find it by identity.
+         */
+        @Nullable GuiMessage lastMessage;
 
         Entry(long nowMs) {
             this.count = 1;

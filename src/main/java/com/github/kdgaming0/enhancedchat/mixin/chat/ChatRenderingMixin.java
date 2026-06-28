@@ -58,6 +58,32 @@ public abstract class ChatRenderingMixin implements ChatAccess {
     @Override public ChatLineTracker       ec$getLineTracker()     { return ec$lineTracker; }
 
     /**
+     * Drops a collapsed duplicate's display lines in place. Each removed line whose index is below
+     * the current scroll offset (i.e. newer than the viewport) decrements {@code chatScrollbarPos}
+     * by one so the lines the player is reading don't jump. Any resulting out-of-range offset is
+     * corrected by the per-frame {@link #ec$clampScrollBeforeRender} clamp.
+     */
+    @Override
+    public void ec$dropMessageLines(GuiMessage message) {
+        List<GuiMessage.Line> lines = ec$lineTracker.takeLinesFor(message);
+        if (lines.isEmpty()) return;
+        for (GuiMessage.Line line : lines) {
+            int idx = ec$indexOfDisplayLine(line);
+            if (idx < 0) continue;
+            trimmedMessages.remove(idx);
+            if (idx < chatScrollbarPos) chatScrollbarPos--;
+        }
+    }
+
+    @Unique
+    private int ec$indexOfDisplayLine(GuiMessage.Line line) {
+        for (int i = 0, n = trimmedMessages.size(); i < n; i++) {
+            if (trimmedMessages.get(i) == line) return i;
+        }
+        return -1;
+    }
+
+    /**
      * Clamps {@code chatScrollbarPos} to the valid range and snaps the "new message" indicator
      * off when at the bottom.
      *

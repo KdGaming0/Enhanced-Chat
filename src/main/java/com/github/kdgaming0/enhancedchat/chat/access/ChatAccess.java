@@ -22,5 +22,12 @@ public interface ChatAccess {
 
     void ec$refreshMessages();
 
+    /**
+     * Removes every display line belonging to {@code message} from the live display queue,
+     * adjusting the scroll offset so the visible region stays put. Lets the compact feature drop
+     * a collapsed duplicate in place instead of rebuilding the whole display queue.
+     */
+    void ec$dropMessageLines(GuiMessage message);
+
     ChatLineTracker ec$getLineTracker();
 }

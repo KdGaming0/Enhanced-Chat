@@ -1,5 +1,8 @@
 package com.github.kdgaming0.enhancedchat.chat.render;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+
 /**
  * Utilities for analysing Hypixel-formatted chat text.
  */
@@ -37,6 +40,16 @@ public final class ChatTextHelper {
             if (!isSeparatorChar(c) && c != ' ') return true;
         }
         return false;
+    }
+
+    /**
+     * Flattens a chat component to its plain, format-stripped, compact-suffix-free, trimmed text.
+     * Shared by the tab filter and the searchable-text builder so the flattening rules stay in
+     * one place.
+     */
+    public static String plainText(Component content) {
+        String plain = ChatFormatting.stripFormatting(content.getString());
+        return stripCompactSuffix(plain).trim();
     }
 
     // -----------------------------------------------------------------

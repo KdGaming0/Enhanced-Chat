@@ -1,3 +1,4 @@
-## Update 0.3.0
+## Update 0.3.1
 
-- Removed Center Hypixel Text and Smooth Separator Lines. If you like this feature, please use BetterHypixelChat instead.
+- Fixed the lag when the chat receives a flood of messages or fills up with a long history.
+- Other minor optimizations.

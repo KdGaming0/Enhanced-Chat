@@ -4,6 +4,8 @@ import com.github.kdgaming0.enhancedchat.chat.access.ChatAccess;
 import com.github.kdgaming0.enhancedchat.chat.compact.CompactMessageHandler;
 import com.github.kdgaming0.enhancedchat.config.EnhancedChatConfig;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
@@ -14,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 /**
  * Compacts consecutive duplicate chat messages via {@link CompactMessageHandler}. Priority is
  * {@code Integer.MAX_VALUE} so every other chat mixin observes the already-compacted message.
@@ -23,8 +27,6 @@ public abstract class CompactChatMixin {
 
     @Unique
     private CompactMessageHandler ec$compactHandler;
-    @Unique
-    private boolean ec$compactedThisMessage;
 
     @Unique
     private CompactMessageHandler ec$handler() {
@@ -43,14 +45,16 @@ public abstract class CompactChatMixin {
             argsOnly = true)
     private Component ec$compact(Component message) {
         if (!EnhancedChatConfig.compactDuplicateMessages) return message;
-        Component processed = ec$handler().process(message);
-        ec$compactedThisMessage = processed != message;
-        return processed;
+        return ec$handler().process(message);
     }
 
     /**
-     * After vanilla finishes adding the compacted message, rebuild the display queue so
-     * stale lines from the prior occurrence are discarded.
+     * After vanilla finishes adding the message, bind the new history entry (now at index 0) to
+     * the compact handler so the next duplicate of this text can be located by identity.
+     *
+     * <p>A collapsed duplicate's stale prior line is already removed in place by
+     * {@link CompactMessageHandler#process} (via {@link ChatAccess#ec$dropMessageLines}), so no
+     * display-queue rebuild is scheduled here.
      */
     @Inject(
             method = "addMessage(Lnet/minecraft/network/chat/Component;"
@@ -58,19 +62,14 @@ public abstract class CompactChatMixin {
                     + "Lnet/minecraft/client/multiplayer/chat/GuiMessageSource;"
                     + "Lnet/minecraft/client/multiplayer/chat/GuiMessageTag;)V",
             at = @At("TAIL"))
-    private void ec$refreshAfterCompact(
+    private void ec$afterAddMessage(
             Component message, MessageSignature sig,
-            net.minecraft.client.multiplayer.chat.GuiMessageSource source,
-            GuiMessageTag tag, CallbackInfo ci) {
-        if (ec$compactedThisMessage) {
-            ec$compactedThisMessage = false;
+            GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
+        if (!EnhancedChatConfig.compactDuplicateMessages) return;
 
-            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-            if (mc.isSameThread()) {
-                ((ChatAccess) this).ec$refreshMessages();
-            } else {
-                mc.execute(() -> ((ChatAccess) this).ec$refreshMessages());
-            }
+        List<GuiMessage> all = ((ChatAccess) this).ec$getAllMessages();
+        if (!all.isEmpty()) {
+            ec$handler().noteAddedMessage(all.getFirst());
         }
     }
 

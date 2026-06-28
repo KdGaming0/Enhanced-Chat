@@ -43,3 +43,6 @@ replay_*.log
 
 AGENTS.md
 IMPLEMENTATION_LOG.md
+graphify-out
+CLAUDE.md
+.claude
