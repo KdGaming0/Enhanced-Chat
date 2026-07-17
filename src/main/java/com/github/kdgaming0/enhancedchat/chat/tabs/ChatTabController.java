@@ -36,6 +36,7 @@ public final class ChatTabController {
      */
     public boolean isFiltering() {
         return EnhancedChatConfig.enableChatTabs
+                && EnhancedChatConfig.enableTabFiltering
                 && HypixelLocationState.isOnHypixel()
                 && activeTab != ChatTab.ALL;
     }

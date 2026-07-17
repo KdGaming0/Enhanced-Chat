@@ -16,6 +16,8 @@
   "enhanced_chat.midnightconfig.compactTimeWindowMinutes.tooltip": "How long to wait before resetting the compact counter. 0 = unlimited.",
   "enhanced_chat.midnightconfig.enableChatTabs": "Enable Chat Tabs",
   "enhanced_chat.midnightconfig.enableChatTabs.tooltip": "Adds Hypixel channel tab buttons above the chat input.",
+  "enhanced_chat.midnightconfig.enableTabFiltering": "Enable Tab Filtering",
+  "enhanced_chat.midnightconfig.enableTabFiltering.tooltip": "Filter chat messages based on the selected tab. When disabled, all messages are shown.",
   "enhanced_chat.midnightconfig.enableChatContextMenu": "Enable Chat Context Menu",
   "enhanced_chat.midnightconfig.enableChatContextMenu.tooltip": "Right-click a message to copy or delete it.",
   "enhanced_chat.midnightconfig.rightClickChatCopies": "Right-Click to Copy",
