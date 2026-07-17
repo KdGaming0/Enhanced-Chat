@@ -31,6 +31,9 @@ public class EnhancedChatConfig extends MidnightConfig {
     public static boolean enableChatTabs = true;
 
     @Entry(category = CHAT_ENHANCEMENTS)
+    public static boolean enableTabFiltering = true;
+
+    @Entry(category = CHAT_ENHANCEMENTS)
     public static boolean enableChatContextMenu = true;
 
     @Entry(category = CHAT_ENHANCEMENTS)
